@@ -1,0 +1,9 @@
+{
+  "name": "adelton-exterior-control-map",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "latest"
+  }
+}
