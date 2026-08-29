@@ -65,7 +65,7 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
 <body>
 <header>
   <h1>Adelton</h1>
-  <p>Exterior Control Map</p>
+  <p>Exterior Control Map <span id="sharedDataStatus" style="margin-left:8px;font-size:11px;color:#6b7280;">• Connecting…</span></p>
 
   <button
     type="button"
@@ -2309,6 +2309,11 @@ const PERMANENT_LOTS = {
   );
 
 
+  // Snapshot of the last shared state received from Netlify.
+  // persist() compares against this so only changed homesites are written.
+  let lastSyncedState = null;
+
+
   let selected =
   null;
 
@@ -2561,15 +2566,349 @@ const fields = {
 
 
 
+  function cloneState(value){
+    return JSON.parse(JSON.stringify(value));
+  }
+
+
+  function recordForState(sourceState, id){
+    return {
+      plot: (
+        sourceState.plots &&
+        sourceState.plots[id]
+      )
+      ? cloneState(sourceState.plots[id])
+      : { restricted:[] },
+
+      data: (
+        sourceState.data &&
+        Object.prototype.hasOwnProperty.call(sourceState.data, id)
+      )
+      ? cloneState(sourceState.data[id])
+      : null,
+
+      meta: (
+        sourceState.meta &&
+        sourceState.meta[id]
+      )
+      ? cloneState(sourceState.meta[id])
+      : {
+          locked:false,
+          lastSavedAt:"",
+          overrideReason:"",
+          overrideAt:""
+        }
+    };
+  }
+
+
+  function sameRecord(a, b){
+    return JSON.stringify(a) === JSON.stringify(b);
+  }
+
+
+  function setSharedStatus(text, color="#6b7280"){
+    const el = document.getElementById("sharedDataStatus");
+    if(!el) return;
+    el.textContent = "• " + text;
+    el.style.color = color;
+  }
+
+
+  async function pushChangesToShared(changes){
+
+    if(!changes.length){
+      return;
+    }
+
+    setSharedStatus("Saving…", "#8a6b00");
+
+    const response =
+    await fetch(
+      "/.netlify/functions/adelton-state",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          changes
+        })
+      }
+    );
+
+    if(!response.ok){
+      throw new Error(
+        "Shared save failed: " +
+        response.status
+      );
+    }
+
+    changes.forEach(change => {
+
+      if(!lastSyncedState){
+        return;
+      }
+
+      lastSyncedState.plots[change.id] =
+      cloneState(change.record.plot);
+
+      if(change.record.data === null){
+        delete lastSyncedState.data[change.id];
+      }
+      else{
+        lastSyncedState.data[change.id] =
+        cloneState(change.record.data);
+      }
+
+      lastSyncedState.meta[change.id] =
+      cloneState(change.record.meta);
+
+    });
+
+    setSharedStatus("Shared • Saved", "#15803d");
+
+  }
+
+
   function persist(){
 
+    // Keep a local fallback/cache too.
     localStorage.setItem(
-
       STORAGE,
-
       JSON.stringify(state)
-
     );
+
+    // Before the first shared load finishes, don't push anything.
+    if(!lastSyncedState){
+      return;
+    }
+
+    const changes = [];
+
+    ids.forEach(id => {
+
+      const current =
+      recordForState(
+        state,
+        id
+      );
+
+      const previous =
+      recordForState(
+        lastSyncedState,
+        id
+      );
+
+      if(
+        !sameRecord(
+          current,
+          previous
+        )
+      ){
+        changes.push({
+          id,
+          record:current
+        });
+      }
+
+    });
+
+    if(!changes.length){
+      return;
+    }
+
+    pushChangesToShared(
+      changes
+    )
+    .catch(error => {
+      console.error(error);
+      setSharedStatus(
+        "Not synced",
+        "#dc2626"
+      );
+      alert(
+        "This change was saved on this computer, but Netlify shared storage could not be updated. Check your connection and try saving again."
+      );
+    });
+
+  }
+
+
+  async function loadSharedState(){
+
+    setSharedStatus(
+      "Connecting…"
+    );
+
+    try{
+
+      const response =
+      await fetch(
+        "/.netlify/functions/adelton-state",
+        {
+          method:"GET",
+          cache:"no-store"
+        }
+      );
+
+      if(!response.ok){
+        throw new Error(
+          "Shared load failed: " +
+          response.status
+        );
+      }
+
+      const result =
+      await response.json();
+
+      if(
+        result &&
+        result.hasData &&
+        result.state
+      ){
+
+        state =
+        result.state;
+
+        if(
+          !state.plots ||
+          typeof state.plots !== "object"
+        ){
+          state.plots = {};
+        }
+
+        if(
+          !state.data ||
+          typeof state.data !== "object"
+        ){
+          state.data = {};
+        }
+
+        if(
+          !state.meta ||
+          typeof state.meta !== "object"
+        ){
+          state.meta = {};
+        }
+
+        ids.forEach(id => {
+
+          if(!state.plots[id]){
+            state.plots[id] = {
+              restricted:[]
+            };
+          }
+
+          if(
+            !Array.isArray(
+              state.plots[id].restricted
+            )
+          ){
+            state.plots[id].restricted =
+            [];
+          }
+
+          if(!state.meta[id]){
+            state.meta[id] = {
+              locked:false,
+              lastSavedAt:"",
+              overrideReason:"",
+              overrideAt:""
+            };
+          }
+
+        });
+
+        lastSyncedState =
+        cloneState(state);
+
+        localStorage.setItem(
+          STORAGE,
+          JSON.stringify(state)
+        );
+
+        updateLabels();
+        paint();
+
+        if(selected){
+          selectPlot(selected);
+        }
+
+        setSharedStatus(
+          "Shared • Live",
+          "#15803d"
+        );
+
+        return;
+      }
+
+      // First use: no Netlify Blob data exists yet.
+      // Keep the current local/default state and make it the initial shared state.
+      lastSyncedState = {
+        plots:Object.fromEntries(
+          ids.map(id => [
+            id,
+            { restricted:[] }
+          ])
+        ),
+        data:{},
+        meta:Object.fromEntries(
+          ids.map(id => [
+            id,
+            {
+              locked:false,
+              lastSavedAt:"",
+              overrideReason:"",
+              overrideAt:""
+            }
+          ])
+        )
+      };
+
+      const initialChanges =
+      ids
+      .map(id => ({
+        id,
+        record:recordForState(
+          state,
+          id
+        )
+      }))
+      .filter(change =>
+        !sameRecord(
+          change.record,
+          recordForState(
+            lastSyncedState,
+            change.id
+          )
+        )
+      );
+
+      if(initialChanges.length){
+        await pushChangesToShared(
+          initialChanges
+        );
+      }
+      else{
+        setSharedStatus(
+          "Shared • Live",
+          "#15803d"
+        );
+      }
+
+    }
+    catch(error){
+
+      console.error(error);
+
+      // Keep localStorage as a usable fallback if Netlify is unavailable.
+      setSharedStatus(
+        "Local only",
+        "#dc2626"
+      );
+
+    }
 
   }
 
@@ -5398,13 +5737,13 @@ function labelHTML(id, d) {
 
     "click",
 
-    () => {
+    async () => {
 
       if(
 
         !confirm(
 
-          "Delete all entered lot information and manual restrictions?"
+          "Delete all entered lot information and manual restrictions for EVERYONE using this shared map?"
 
         )
 
@@ -5414,13 +5753,48 @@ function labelHTML(id, d) {
 
       }
 
+      try{
 
-      localStorage.removeItem(
-        STORAGE
-      );
+        setSharedStatus(
+          "Resetting…",
+          "#8a6b00"
+        );
 
+        const response =
+        await fetch(
+          "/.netlify/functions/adelton-state",
+          {
+            method:"DELETE"
+          }
+        );
 
-      location.reload();
+        if(!response.ok){
+          throw new Error(
+            "Shared reset failed"
+          );
+        }
+
+        localStorage.removeItem(
+          STORAGE
+        );
+
+        location.reload();
+
+      }
+      catch(error){
+
+        console.error(error);
+
+        setSharedStatus(
+          "Reset failed",
+          "#dc2626"
+        );
+
+        alert(
+          "The shared map could not be reset. Nothing was deleted."
+        );
+
+      }
 
     }
 
@@ -5438,6 +5812,9 @@ function labelHTML(id, d) {
   );
 
   paint();
+
+  // Load the shared Netlify Blob data for everyone using this site.
+  loadSharedState();
 
 
   // Start the map automatically in Fit view.
