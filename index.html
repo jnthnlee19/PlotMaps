@@ -148,8 +148,7 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
     </div>
     <p class="small">
       Yellow outlines = temporary restricted/conflict-check zone for the selected lot.
-      Red = a lot causing a conflict. The current prototype starts with the 9 nearest lots as a placeholder;
-      you can edit the exact restricted-lot list for each lot on the right.
+      Red = a lot causing a conflict. 
     </p>
   </section>
 
@@ -2265,6 +2264,12 @@ const PERMANENT_LOTS = {
   // persist() compares against this so only changed homesites are written.
   let lastSyncedState = null;
 
+  // Shared record version tracking.
+  // Used to prevent one person from silently overwriting a homesite
+  // that another person saved while it was being edited.
+  let sharedEtags = {};
+  let openedEtags = {};
+
 
   let selected =
   null;
@@ -2570,7 +2575,7 @@ const fields = {
   async function pushChangesToShared(changes){
 
     if(!changes.length){
-      return;
+      return { ok:true, saved:0, etags:{} };
     }
 
     setSharedStatus("Saving…", "#8a6b00");
@@ -2588,6 +2593,20 @@ const fields = {
         })
       }
     );
+
+    const result =
+    await response.json()
+    .catch(() => ({}));
+
+    if(response.status === 409){
+      const error =
+      new Error(
+        "This homesite changed on another device."
+      );
+      error.code = "STALE_HOMESITE";
+      error.conflictId = result.conflictId || "";
+      throw error;
+    }
 
     if(!response.ok){
       throw new Error(
@@ -2616,9 +2635,87 @@ const fields = {
       lastSyncedState.meta[change.id] =
       cloneState(change.record.meta);
 
+      if(
+        result.etags &&
+        Object.prototype.hasOwnProperty.call(
+          result.etags,
+          change.id
+        )
+      ){
+        sharedEtags[change.id] =
+        result.etags[change.id];
+
+        openedEtags[change.id] =
+        result.etags[change.id];
+      }
+
     });
 
     setSharedStatus("Shared • Saved", "#15803d");
+
+    return result;
+
+  }
+
+  async function getLiveHomesiteVersion(id){
+
+    const response =
+    await fetch(
+      "/.netlify/functions/adelton-state?id=" +
+      encodeURIComponent(id),
+      {
+        method:"GET",
+        cache:"no-store"
+      }
+    );
+
+    if(!response.ok){
+      throw new Error(
+        "Could not verify homesite version."
+      );
+    }
+
+    return await response.json();
+
+  }
+
+
+  async function verifyHomesiteIsFresh(id){
+
+    const live =
+    await getLiveHomesiteVersion(id);
+
+    const opened =
+    Object.prototype.hasOwnProperty.call(
+      openedEtags,
+      id
+    )
+    ? openedEtags[id]
+    : (
+        Object.prototype.hasOwnProperty.call(
+          sharedEtags,
+          id
+        )
+        ? sharedEtags[id]
+        : null
+      );
+
+    const liveEtag =
+    live && live.exists
+    ? live.etag
+    : null;
+
+    if(liveEtag !== opened){
+      return {
+        fresh:false,
+        live
+      };
+    }
+
+    return {
+      fresh:true,
+      live
+    };
 
   }
 
@@ -2775,6 +2872,17 @@ const fields = {
         lastSyncedState =
         cloneState(state);
 
+        sharedEtags =
+        (
+          result.etags &&
+          typeof result.etags === "object"
+        )
+        ? {...result.etags}
+        : {};
+
+        openedEtags =
+        {...sharedEtags};
+
         localStorage.setItem(
           STORAGE,
           JSON.stringify(state)
@@ -2797,6 +2905,9 @@ const fields = {
 
       // First use: no Netlify Blob data exists yet.
       // Keep the current local/default state and make it the initial shared state.
+      sharedEtags = {};
+      openedEtags = {};
+
       lastSyncedState = {
         plots:Object.fromEntries(
           ids.map(id => [
@@ -4220,6 +4331,17 @@ function labelHTML(id, d) {
     id;
 
 
+    // Remember the shared version present when this homesite was opened.
+    // The form itself is never auto-replaced during the pre-save check.
+    openedEtags[id] =
+    Object.prototype.hasOwnProperty.call(
+      sharedEtags,
+      id
+    )
+    ? sharedEtags[id]
+    : null;
+
+
     // Show the floating homesite details panel.
     aside.style.display =
     "block";
@@ -4321,7 +4443,7 @@ function labelHTML(id, d) {
   }
 
 
-  function commitSave(
+  async function commitSave(
     form,
     overrideReason = ""
   ){
@@ -4329,92 +4451,210 @@ function labelHTML(id, d) {
     if(
       !selected
     ){
-
       return;
-
     }
 
+    const savingId =
+    selected;
+
+    let freshness;
+
+    try{
+      setSharedStatus(
+        "Checking latest…",
+        "#8a6b00"
+      );
+
+      freshness =
+      await verifyHomesiteIsFresh(
+        savingId
+      );
+    }
+    catch(error){
+      console.error(error);
+
+      setSharedStatus(
+        "Could not verify",
+        "#dc2626"
+      );
+
+      alert(
+        "The site could not verify the latest shared information for this homesite, so your save was stopped.\n\nYour typed information is still in the form. Check your connection and try Save again."
+      );
+
+      return;
+    }
+
+    if(!freshness.fresh){
+
+      setSharedStatus(
+        "Update detected",
+        "#dc2626"
+      );
+
+      if(
+        freshness.live &&
+        freshness.live.exists
+      ){
+        sharedEtags[savingId] =
+        freshness.live.etag;
+      }
+
+      alert(
+        "This homesite was updated on another device while you were working on it.\n\nYour typed information has NOT been deleted, but this save was stopped so you do not overwrite the newer saved information.\n\nClose and reopen this homesite to load the current saved information, then make any needed changes."
+      );
+
+      return;
+    }
+
+    const previousRecord =
+    recordForState(
+      state,
+      savingId
+    );
 
     state.data[
-      selected
+      savingId
     ] =
     form;
-
 
     const now =
     new Date()
     .toISOString();
 
-
     const m =
     metaFor(
-      selected
+      savingId
     );
-
 
     m.locked =
     true;
 
-
     m.lastSavedAt =
     now;
-
 
     m.overrideReason =
     overrideReason
     .trim();
 
-
     m.overrideAt =
-
     m.overrideReason
-
     ?
-
     now
-
     :
-
     "";
 
+    const currentRecord =
+    recordForState(
+      state,
+      savingId
+    );
+
+    // Keep a local fallback/cache, but do not mark the shared snapshot
+    // as updated until Netlify confirms the conditional write.
+    localStorage.setItem(
+      STORAGE,
+      JSON.stringify(state)
+    );
+
+    try{
+
+      await pushChangesToShared([
+        {
+          id:savingId,
+          record:currentRecord,
+          expectedEtag:
+          Object.prototype.hasOwnProperty.call(
+            openedEtags,
+            savingId
+          )
+          ? openedEtags[savingId]
+          : null
+        }
+      ]);
+
+    }
+    catch(error){
+
+      // Restore the actual saved state, but intentionally DO NOT refill
+      // the form. The user's typed values remain visible.
+      state.plots[savingId] =
+      cloneState(previousRecord.plot);
+
+      if(previousRecord.data === null){
+        delete state.data[savingId];
+      }
+      else{
+        state.data[savingId] =
+        cloneState(previousRecord.data);
+      }
+
+      state.meta[savingId] =
+      cloneState(previousRecord.meta);
+
+      localStorage.setItem(
+        STORAGE,
+        JSON.stringify(state)
+      );
+
+      updateLabels();
+      paint();
+
+      if(
+        error &&
+        error.code === "STALE_HOMESITE"
+      ){
+        setSharedStatus(
+          "Update detected",
+          "#dc2626"
+        );
+
+        alert(
+          "Someone else saved this homesite just before your save completed.\n\nYour typed information has NOT been deleted, and the newer shared record was protected from being overwritten.\n\nClose and reopen this homesite to load the current saved information."
+        );
+      }
+      else{
+        console.error(error);
+
+        setSharedStatus(
+          "Not synced",
+          "#dc2626"
+        );
+
+        alert(
+          "Your save could not be completed in shared storage.\n\nYour typed information is still in the form. Please try Save again."
+        );
+      }
+
+      return;
+    }
 
     unlockedForEdit =
     null;
 
-
-    persist();
-
-
     fillForm(
-      selected
+      savingId
     );
 
-
     updateLabels();
-
 
     $("v2PlotTitle")
     .textContent =
     plotName(
-      selected
+      savingId
     );
-
 
     renderRestrictions();
 
-
     renderLockState();
-
 
     checkConflicts(
       false
     );
 
-
     closeConflictModal();
 
   }
-
 
   function showConflictOverride(
     conflicts
