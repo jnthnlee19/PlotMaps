@@ -199,7 +199,7 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
     </div>
 
     <hr>
-    <div class="small"><strong>Prototype rule:</strong> Plan, Brick, Scheme, and Front Door are each checked independently against the selected lot's restricted lots. We can make different categories use different rules later.</div>
+    <div class="small"><strong>Conflict rule:</strong> Plan, Brick, Scheme, and Front Door are each checked independently against the selected lot's restricted lots. We can make different categories use different rules later.</div>
 
     <div class="toolbar">
       <button class="secondary" id="exportBtn">Export Data</button>
@@ -1400,12 +1400,254 @@ aside.card > .v2-panel-eyebrow{
 
 
 
+
+<style>
+/* =========================================================
+   STAGE 1 / STAGE 2 LOCAL PROTOTYPE STYLES
+   ========================================================= */
+.v2-stage-card{
+  margin-top:14px;
+  padding:13px;
+  border:1px solid #dfe3e6;
+  border-radius:10px;
+  background:#fff;
+}
+.v2-stage-card:first-of-type{margin-top:10px}
+.v2-stage-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.v2-stage-kicker{
+  font-size:10px;
+  letter-spacing:.09em;
+  font-weight:800;
+  color:#6b7280;
+}
+.v2-stage-name{
+  font-size:14px;
+  font-weight:800;
+  color:#1f2937;
+  margin-top:2px;
+}
+.v2-stage-chip{
+  white-space:nowrap;
+  padding:4px 7px;
+  border-radius:999px;
+  border:1px solid #d1d5db;
+  background:#f3f4f6;
+  color:#6b7280;
+  font-size:10px;
+  font-weight:800;
+}
+.v2-stage-chip.saved{
+  background:#dbeafe;
+  border-color:#93c5fd;
+  color:#1d4ed8;
+}
+.v2-stage-chip.complete{
+  background:#dcfce7;
+  border-color:#86efac;
+  color:#166534;
+}
+.v2-stage-divider{
+  border:0;
+  border-top:1px solid #e5e7eb;
+  margin:12px 0;
+}
+.v2-stage-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:11px;
+}
+.v2-stage-actions button{flex:1;min-width:120px}
+.v2-scheme-summary{
+  margin-top:10px;
+  padding:10px 11px;
+  border:1px solid #e1e5e9;
+  border-radius:8px;
+  background:#f8fafc;
+}
+.v2-scheme-summary-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+.v2-test-chip{
+  color:#7c5d00;
+  background:#fff7d6;
+  border:1px solid #ead78c;
+  border-radius:999px;
+  padding:3px 6px;
+  font-size:9px;
+}
+.v2-color-row{
+  display:grid;
+  grid-template-columns:1fr 1.15fr;
+  gap:8px;
+  padding:5px 0;
+  border-top:1px solid #e5e7eb;
+  font-size:11px;
+  line-height:1.25;
+}
+.v2-color-row:first-of-type{border-top:0}
+.v2-color-row span:first-child{color:#6b7280;font-weight:700}
+.v2-color-row span:last-child{text-align:right;font-weight:700}
+.v2-stage-disabled{
+  opacity:.55;
+}
+.v2-stage-disabled::after{
+  content:"Save Stage 1 first";
+  display:block;
+  margin-top:9px;
+  padding:7px 8px;
+  background:#f3f4f6;
+  border-radius:6px;
+  text-align:center;
+  color:#6b7280;
+  font-size:10px;
+  font-weight:800;
+}
+.lot.v2-home-saved{
+  fill:rgba(59,130,246,.18) !important;
+  stroke:#3b82f6 !important;
+  stroke-width:2.1 !important;
+}
+svg.v2-map-idle .lot.v2-home-saved{
+  fill:rgba(59,130,246,.18) !important;
+  stroke:#3b82f6 !important;
+  opacity:1 !important;
+}
+.lot.v2-finalized{
+  fill:rgba(22,163,74,.23) !important;
+  stroke:#15803d !important;
+}
+.v2-local-test-note{
+  margin-top:9px;
+  padding:8px 10px;
+  border-radius:7px;
+  background:#fff7d6;
+  border:1px solid #ead78c;
+  color:#725c0a;
+  font-size:10.5px;
+  line-height:1.35;
+}
+
+.v2-home-summary{
+  display:none;
+  margin-top:10px;
+  padding:10px 11px;
+  border:1px solid #dfe3e6;
+  border-radius:8px;
+  background:#f3f4f6;
+}
+.v2-home-summary.show{display:block}
+.v2-home-summary-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px 10px;
+}
+.v2-home-summary-label{
+  display:block;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.07em;
+  color:#6b7280;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.v2-home-summary-value{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:#1f2937;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.v2-home-fields.collapsed{display:none}
+#v2StageHome.saved-collapsed{
+  background:#f3f4f6;
+  border-color:#d1d5db;
+}
+#v2StageHome.saved-collapsed .v2-stage-head{
+  margin-bottom:0;
+}
+
+
+/* =========================================================
+   COMPACT CONFLICT STATUS
+   Green = one-line confirmation.
+   Conflicts automatically expand using the existing status content.
+   ========================================================= */
+.v2-section.v2-conflict-compact{
+  margin:0 0 10px !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+.v2-section.v2-conflict-compact .v2-conflict-title{
+  display:none !important;
+}
+.v2-section.v2-conflict-compact .v2-status{
+  margin:0 !important;
+  min-height:0 !important;
+  padding:7px 10px !important;
+  border-radius:7px !important;
+  font-size:11px !important;
+  line-height:1.25 !important;
+}
+.v2-section.v2-conflict-compact .v2-status:not(.bad){
+  border:1px solid #bbdfc7 !important;
+  background:#eef9f1 !important;
+  color:#18733a !important;
+  font-weight:800 !important;
+}
+.v2-section.v2-conflict-compact .v2-status.bad{
+  padding:10px 11px !important;
+  border:1px solid #efb2b2 !important;
+  background:#fff2f2 !important;
+  color:#a51d1d !important;
+  font-size:11.5px !important;
+  line-height:1.4 !important;
+}
+
+
+/* =========================================================
+   FIELD-LEVEL CONFLICT HIGHLIGHTING
+   The top box stays one line; conflicting controls show the detail.
+   ========================================================= */
+.v2-field-conflict{
+  border:2px solid #dc2626 !important;
+  background:#fff1f2 !important;
+  box-shadow:0 0 0 2px rgba(220,38,38,.08) !important;
+}
+label.v2-label-conflict{
+  color:#b91c1c !important;
+  font-weight:800 !important;
+}
+
+</style>
+
 <script id="community-v2-upgrade">
 
 (() => {
 
   const STORAGE =
   "communityExteriorControlMap_upgrade_v1";
+
+  // =========================================================
+  // LIVE SHARED MODE
+  // Uses the existing Netlify Blobs endpoint and ETag protection.
+  // =========================================================
+  const LOCAL_TEST_MODE = false;
 
   const mapstage =
   document.querySelector(".mapstage");
@@ -1580,7 +1822,7 @@ aside.card > .v2-panel-eyebrow{
       style="display:none">
 
       <!-- CONFLICT STATUS AT TOP -->
-      <div class="v2-section" style="margin-top:0">
+      <div class="v2-section v2-conflict-compact" style="margin-top:0">
 
         <div class="v2-title v2-conflict-title">
           Selection Check
@@ -1601,154 +1843,193 @@ aside.card > .v2-panel-eyebrow{
           They display on the map and in the selected-lot title,
           but are intentionally not editable here. -->
 
-<label for="v2Address">Address</label>
-<input id="v2Address" placeholder="1234 Main Street">
+<!-- =========================================================
+     STAGE 1 — HOME INFORMATION
+     ========================================================= -->
+<div class="v2-stage-card" id="v2StageHome">
+  <div class="v2-stage-head">
+    <div>
+      <div class="v2-stage-kicker">STAGE 1</div>
+      <div class="v2-stage-name">Home Information</div>
+    </div>
+    <span class="v2-stage-chip" id="v2HomeStageChip">Not Saved</span>
+  </div>
 
-<div class="v2-grid2">
+  <div class="v2-home-fields" id="v2HomeFields">
+    <label for="v2Address">Address *</label>
+    <input id="v2Address" placeholder="1234 Main Street">
 
-  <div>
-    <label for="v2Plan">House Plan *</label>
-    <select id="v2Plan">
+    <div class="v2-grid2">
+      <div>
+        <label for="v2Plan">House Plan *</label>
+        <select id="v2Plan">
+          <!-- HOUSE PLAN OPTIONS - TYPE YOUR ACTUAL PLANS HERE -->
+          <option value="">Select Plan</option>
+          <option value="1676">1676</option>
+          <option value="1793">1793</option>
+          <option value="1965">1965</option>
+          <option value="2382">2382</option>
+          <option value="2444">2444</option>
+          <option value="2501">2501</option>
+          <option value="2824">2824</option>
+          <option value="2881">2881</option>
+          <option value="2967">2967</option>
+          <option value="3475">3475</option>
+        </select>
+      </div>
 
-      <!-- HOUSE PLAN OPTIONS - TYPE YOUR ACTUAL PLANS HERE -->
-      <option value="">Select Plan</option>
-      <option value="1676">1676</option>
-      <option value="1793">1793</option>
-      <option value="1965">1965</option>
-      <option value="2382">2382</option>
-      <option value="2444">2444</option>
-      <option value="2501">2501</option>
-      <option value="2824">2824</option>
-      <option value="2881">2881</option>
- <option value="2967">2967</option>
-      <option value="3475">3475</option>
+      <div>
+        <label for="v2Elevation">Elevation *</label>
+        <select id="v2Elevation">
+          <!-- ELEVATION OPTIONS - TYPE YOUR ACTUAL ELEVATIONS HERE -->
+          <option value="">Select Elevation</option>
+          <option value="B">B</option>
+          <option value="S">S</option>
+          <option value="V">V</option>
+          <option value="X">X</option>
+        </select>
+      </div>
+    </div>
 
+    <div>
+      <label>Exterior Type</label>
+      <div id="v2ExteriorTypeDisplay"
+        style="padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;font-weight:700;color:#475569;">
+        Choose Elevation First
+      </div>
+      <input type="radio" name="v2ExteriorType" id="v2AllSiding" value="all-siding" style="display:none">
+      <input type="radio" name="v2ExteriorType" id="v2WithBrick" value="brick" style="display:none">
+    </div>
+
+    <div class="v2-stage-actions">
+      <button type="button" class="primary" id="v2SaveHome">Save Home</button>
+    </div>
+  </div>
+
+  <div class="v2-home-summary" id="v2HomeSummary">
+    <div class="v2-home-summary-grid">
+      <div>
+        <span class="v2-home-summary-label">Address</span>
+        <span class="v2-home-summary-value" id="v2HomeSummaryAddress">—</span>
+      </div>
+      <div>
+        <span class="v2-home-summary-label">Plan / Elevation</span>
+        <span class="v2-home-summary-value" id="v2HomeSummaryPlanElevation">—</span>
+      </div>
+    </div>
+
+    <div class="v2-stage-actions" style="margin-top:8px">
+      <button type="button" class="secondary" id="v2EditHome">Edit Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     STAGE 2 — EXTERIOR SELECTIONS
+     ========================================================= -->
+<div class="v2-stage-card" id="v2StageExterior">
+  <div class="v2-stage-head">
+    <div>
+      <div class="v2-stage-kicker">STAGE 2</div>
+      <div class="v2-stage-name">Exterior Selections</div>
+    </div>
+    <span class="v2-stage-chip" id="v2ExteriorStageChip">Waiting for Home</span>
+  </div>
+
+  <div id="v2BrickWrap" style="display:none">
+    <label for="v2Brick">Brick *</label>
+    <select id="v2Brick">
+      <!-- BRICK OPTIONS - TYPE YOUR ACTUAL BRICK NAMES HERE -->
+      <option value="">Select Brick</option>
+      <option value="Brick 1">Adobe Wells</option>
+      <option value="Brick 2">Sonoran Desert</option>
+      <option value="Brick 3">Stone Bay</option>
+      <option value="Brick 4">Grey Fog</option>
+      <option value="Brick 5">Cibolo Trail</option>
+      <option value="Brick 6">Mocha Brown Antique</option>
+      <option value="Brick 7">Old Fancisco</option>
+      <option value="Brick 8">White Birch</option>
+      <option value="Brick 9">Cottonwood</option>
+      <option value="Brick 10">Frostwood</option>
+      <option value="Brick 11">STONE ONLY - Cream Stone</option>
+      <option value="Brick 12">STONE ONLY - Texas Mix</option>
+      <option value="Brick 13">STONE ONLY - Smokey Mountain</option>
     </select>
   </div>
 
-  <div>
-    <label for="v2Elevation">Elevation *</label>
-    <select id="v2Elevation">
-
-      <!-- ELEVATION OPTIONS - TYPE YOUR ACTUAL ELEVATIONS HERE -->
-      <option value="">Select Elevation</option>
-      <option value="B">B</option>
-      <option value="S">S</option>
-      <option value="V">V</option>
-<option value="X">X</option>
-
-    </select>
-  </div>
-
-</div>
-
-<div>
-  <label>Exterior Type</label>
-
-  <!-- Exterior Type is determined automatically by Elevation:
-       X = All Siding / No Brick
-       B, S, V = With Brick -->
-  <div
-    id="v2ExteriorTypeDisplay"
-    style="
-      padding:9px 10px;
-      border:1px solid #cbd5e1;
-      border-radius:8px;
-      background:#f8fafc;
-      font-weight:700;
-      color:#475569;
-    ">
-    Choose Elevation First
-  </div>
-
-  <!-- Hidden controls retained for the existing scheme/brick logic -->
-  <input type="radio" name="v2ExteriorType" id="v2AllSiding" value="all-siding" style="display:none">
-  <input type="radio" name="v2ExteriorType" id="v2WithBrick" value="brick" style="display:none">
-</div>
-
-<div id="v2BrickWrap" style="display:none">
-  <label for="v2Brick">Brick *</label>
-  <select id="v2Brick">
-    <!-- BRICK OPTIONS - TYPE YOUR ACTUAL BRICK NAMES HERE -->
-    <option value="">Select Brick</option>
-    <!-- ADD / REMOVE / RENAME BRICKS BELOW -->
-    <option value="Brick 1">Adobe Wells</option>
-    <option value="Brick 2">Sonoran Desert</option>
-    <option value="Brick 3">Stone Bay</option>
-    <option value="Brick 4">Grey Fog</option>
-    <option value="Brick 5">Cibolo Trail</option>
-    <option value="Brick 6">Mocha Brown Antique</option>
-    <option value="Brick 7">Old Fancisco</option>
-    <option value="Brick 8">White Birch</option>
-    <option value="Brick 9">Cottonwood</option>
-    <option value="Brick 10">Frostwood</option>
-    <option value="Brick 11">STONE ONLY - Cream Stone</option>
-    <option value="Brick 12">STONE ONLY - Texas Mix</option>
-    <option value="Brick 13">STONE ONLY - Smokey Mountain</option>
+  <label for="v2Scheme">Scheme *</label>
+  <select id="v2Scheme" disabled>
+    <option value="">Save Home First</option>
   </select>
-</div>
 
-<div class="v2-grid2">
-  <div>
-    <label for="v2Scheme">Scheme *</label>
-    <select id="v2Scheme" disabled>
-      <option value="">Choose Exterior Type First</option>
-    </select>
+  <div class="v2-scheme-summary" id="v2SchemeSummary" style="display:none">
+    <div class="v2-scheme-summary-head">
+      <span>Scheme Colors</span>
+      <span class="v2-test-chip">SET BY SCHEME</span>
+    </div>
+    <div class="v2-color-row">
+      <span>Primary Siding</span>
+      <span id="v2PrimaryColor">—</span>
+    </div>
+    <div class="v2-color-row" id="v2SecondaryColorRow">
+      <span>Secondary Siding</span>
+      <span id="v2SecondaryColor">—</span>
+    </div>
+    <div class="v2-color-row">
+      <span>Trim / Soffit / Columns</span>
+      <span id="v2TrimColor">—</span>
+    </div>
+    <div class="v2-color-row">
+      <span>Fascia</span>
+      <span id="v2FasciaColor">—</span>
+    </div>
   </div>
 
-  <div>
-    <label for="v2Door">Front Door Color *</label>
-    <select id="v2Door" disabled>
-      <option value="">Choose Scheme First</option>
-    </select>
+  <label for="v2Door">Front Door Color *</label>
+  <select id="v2Door" disabled>
+    <option value="">Choose Scheme First</option>
+  </select>
+
+  <label for="v2Garage">Garage Door Color *</label>
+  <select id="v2Garage" disabled>
+    <option value="">Choose Entry Door First</option>
+  </select>
+
+  <label for="v2Shutters">Shutter Color *</label>
+  <select id="v2Shutters" disabled>
+    <option value="">Choose Garage Door First</option>
+  </select>
+
+  <div class="v2-help" style="margin-top:9px">
+    Selection order: Scheme → Entry Door → Garage Door → Shutters.
+  </div>
+
+  <div class="v2-stage-actions">
+    <button type="button" class="primary" id="v2Save">Save Exterior</button>
   </div>
 </div>
 
-      <div class="v2-help" style="margin-top:10px">
-        * Required before saving
-      </div>
 
-      <div class="v2-lockbar" id="v2LockBar">
-        <div class="v2-locktext" id="v2LockText">
-          <strong>Not yet saved</strong>
-          Enter the approved selections, then click Save &amp; Check.
-        </div>
+<div class="v2-lockbar" id="v2LockBar">
+  <div class="v2-locktext" id="v2LockText">
+    <strong>Not yet saved</strong>
+    Save the home first, then complete the exterior selections.
+  </div>
 
-        <button
-          type="button"
-          class="v2-unlock"
-          id="v2Unlock"
-          style="display:none">
-          UNLOCK
-        </button>
-      </div>
+  <button type="button" class="v2-unlock" id="v2Unlock" style="display:none">
+    UNLOCK
+  </button>
+</div>
 
+<div class="v2-actions">
+  <button type="button" class="secondary" id="v2Clear">
+    Clear Form
+  </button>
 
-      <div class="v2-actions">
-
-        <button
-          type="button"
-          class="primary"
-          id="v2Save">
-          Save & Check
-        </button>
-
-        <button
-          type="button"
-          class="secondary"
-          id="v2Clear">
-          Clear Selections
-        </button>
-
-        <button
-          type="button"
-          class="danger"
-          id="v2ClearSavedHome"
-          style="display:none">
-          Clear Saved Home
-        </button>
-
-      </div>
+  <button type="button" class="danger" id="v2ClearSavedHome" style="display:none">
+    Clear Saved Home
+  </button>
+</div>
 
 
       <div
@@ -2278,6 +2559,10 @@ const PERMANENT_LOTS = {
   let unlockedForEdit =
   null;
 
+  // Stage 1 has its own short-lived edit state after Home Information is saved.
+  let homeEditingFor =
+  null;
+
 
   let restrictionMode =
   false;
@@ -2315,6 +2600,8 @@ const fields = {
   elevation:'v2Elevation',
   scheme:'v2Scheme',
   door:'v2Door',
+  garage:'v2Garage',
+  shutters:'v2Shutters',
   brick:'v2Brick'
 };
 
@@ -2328,11 +2615,11 @@ const fields = {
     "D":["SW 6181 Secret Garden","SW 6472 Composed","SW 9570 Ironclad","SW Copper Harbor"],
     "E":["SW 6481 Green Bay","SW 7674 Peppercorn","SW 7600 Bolero","SW 6496 Oceanside"],
     "F":["SW 7622 Homburg Gray","SW 7592 Crabby Apple","SW 7076 Cyberspace","SW Turkish Coffee"],
-    "G":["SW 6453 Cilantro","SW 6244 Naval","SW 6202 Cast Iron","SW 9015 They Call It Mellow"],
+    "G":["SW 6453 Cilantro","SW 6244 Naval","SW 6202 Cast Iron","SW 9015 They call it Mellow"],
     "H":["SW 6249 Storm Cloud","SW 7041 Van Dyke Brown","SW 6991 Black Swan","SW 6678 Sunflower"],
     "I":["SW 0064 Blue Peacock","SW 6453 Cilantro","SW 7020 Black Fox","SW 6051 Sashay Sand"],
-    "J":["SW 7591 Red Barn","SW 6193 Privileged Green","SW 7514 Foothills","SW 6103 Tea Chest"],
-    "K":["SW 6908 Fun Yellow","SW 6208 Pewter Green","SW 7048 Urbane Bronze","SW 7511 Bungalow Brown"],
+    "J":["SW Red Barn 7591","SW 6193 Privaliged green","SW 7514 Foothills","SW 6103 Tea Chest"],
+    "K":["SW 6908 Fun Yellow","SW 6208 Pewter Green","SW 7048 Urban Bronze","SW 7511 Bungalo Brown"],
     "L":["SW 6451 Nurture Green","SW 7069 Iron Ore","SW 9574 Hulett Ore","SW 6222 Riverway"],
 
     "1":["SW 9140 Blustery Sky","SW 6006 Black Bean","SW 7622 Homburg Gray","SW 7514 Foothills"],
@@ -2342,13 +2629,55 @@ const fields = {
     "5":["SW 6244 Naval","SW 7069 Iron Ore","SW 6937 Tantalizing Teal","SW 6666 Enjoyable Yellow"],
     "6":["SW 6209 Ripe Olive","SW 7083 Darkroom","SW 7076 Cyberspace","SW 6868 Real Red"],
     "7":["SW 7592 Crabby Apple","SW 6188 Shade-Grown","SW 9148 Smoky Azurite","SW 9130 Evergreen Fog"],
-    "8":["SW 7701 Cavern Clay","SW 6389 Butternut","SW 9559 Scattered Showers","SW 7048 Urbane Bronze"],
-    "9":["SW 2816 Rookwood Dark Green","SW 0048 Bunglehouse Blue","SW Turkish Coffee","SW 7591 Red Barn"],
+    "8":["SW 7701 Cavern Clay","SW 6389 Butternut","SW 9559 Scattered Showers","SW 7048 Urban Bronze"],
+    "9":["SW 2816 Rookwood Dark Green","SW 0048 Bunglehouse Blue","SW Turkish Coffee","SW Red Barn 7591"],
     "10":["SW 7674 Peppercorn","SW 6249 Storm Cloud","SW 6027 Cordovan","SW 9130 Evergreen Fog"],
     "11":["SW 6389 Butternut","SW 7747 Recycled Glass","SW 9030 Limon Fresco","SW 6339 Persimmon"],
     "12":["SW 0064 Blue Peacock","SW 6453 Cilantro","SW 7020 Black Fox","SW 6051 Sashay Sand"],
     "13":["SW 6389 Butternut","SW 7668 March Wind","SW 7076 Cyberspace","SW 6244 Naval"],
-    "14":["SW 9148 Smoky Azurite","SW 7514 Foothills","SW 6193 Privileged Green","SW 7592 Crabby Apple"]
+    "14":["SW 9148 Smoky Azurite","SW 7514 Foothills","SW 6193 Privaliged green","SW 7592 Crabby Apple"]
+  };
+
+  /* =========================================================
+     REAL FIXED SCHEME COLORS
+     Replace these with the actual scheme colors after approval.
+     Siding schemes: primary + secondary + trim + fascia
+     Brick schemes: primary + trim + fascia
+     ========================================================= */
+  const SCHEME_FIXED_COLORS = {
+    /* =========================================================
+       ALL-SIDING SCHEMES A-L
+       ========================================================= */
+    "A": {primary:"SW 7006 Extra White", secondary:"SW 7006 Extra White", trim:"SW 6258 Tricorn Black", fascia:"SW 6258 Tricorn Black"},
+    "B": {primary:"SW 7008 Alabaster", secondary:"SW 7023 Requisite Gray", trim:"SW 7019 Gauntlet Gray", fascia:"SW 7019 Gauntlet Gray"},
+    "C": {primary:"SW 7037 Balanced Beige", secondary:"SW 7622 Homburg Gray", trim:"SW 7022 Natural Choice", fascia:"SW 7020 Black Fox"},
+    "D": {primary:"SW 9130 Evergreen Fog", secondary:"SW 7036 Accessible Beige", trim:"SW 7042 Shoji White", fascia:"SW 6988 Bohemian Black"},
+    "E": {primary:"SW 9554 Going Grey", secondary:"SW 7076 Cyberspace", trim:"SW Light French Gray", fascia:"SW 6005 Folkstone"},
+    "F": {primary:"SW 7622 Homburg Gray", secondary:"SW 9166 Drift of Mist", trim:"SW 7671 On the Rocks", fascia:"SW 6991 Black Magic"},
+    "G": {primary:"SW 9559 Scattered Showers", secondary:"SW 7072 Online", trim:"SW Light French Gray", fascia:"SW 6990 Caviar"},
+    "H": {primary:"SW 9141 Waterloo", secondary:"SW 9683 Lakeside", trim:"SW 9166 Drift of Mist", fascia:"SW 6989 Domino"},
+    "I": {primary:"SW 6177 Softened Green", secondary:"SW 9166 Drift of Mist", trim:"SW 7005 Pure White", fascia:"SW 6208 Pewter Green"},
+    "J": {primary:"SW 9015 They call it Mellow", secondary:"SW 9015 They call it Mellow", trim:"SW 7008 Alabaster", fascia:"SW 7008 Alabaster"},
+    "K": {primary:"SW Red Barn 7591", secondary:"SW 7036 Accessible Beige", trim:"SW 7008 Alabaster", fascia:"SW 7008 Alabaster"},
+    "L": {primary:"SW 7069 Iron Ore", secondary:"SW Light French Gray", trim:"SW 7006 Extra White", fascia:"SW 7674 Peppercorn"},
+
+    /* =========================================================
+       BRICK SCHEMES 1-14
+       ========================================================= */
+    "1": {primary:"SW 9582 White Sand", trim:"SW 9582 White Sand", fascia:"SW 6006 Black Bean"},
+    "2": {primary:"SW 7012 Creamy", trim:"SW 9542 Natural White", fascia:"SW 2808 Rockwood Dark Brown"},
+    "3": {primary:"SW 7029 Agreeable Gray", trim:"SW 7069 Iron Ore", fascia:"SW 7069 Iron Ore"},
+    "4": {primary:"SW 7648 Big Chill", trim:"SW 9624 Winsome Grey", fascia:"SW 7020 Black Fox"},
+    "5": {primary:"SW Light French Gray", trim:"SW 9541 White Snow", fascia:"SW 7674 Peppercorn"},
+    "6": {primary:"SW 7037 Balanced Beige", trim:"SW 7037 Balanced Beige", fascia:"SW 9175 Deep Forest Brown"},
+    "7": {primary:"SW 7689 Row House Tan", trim:"SW 7637 Oyster White", fascia:"SW 7008 Alabaster"},
+    "8": {primary:"SW 9130 Evergreen Fog", trim:"SW 7010 White Duck", fascia:"SW 6188 Shade-Grown"},
+    "9": {primary:"SW 9138 Stardew", trim:"SW 7011 Natural Choice", fascia:"SW 7008 Alabaster"},
+    "10": {primary:"SW 7622 Homburg Gray", trim:"SW 7006 Extra White", fascia:"SW 7006 Extra White"},
+    "11": {primary:"SW 6243 Distance", trim:"SW 6253 Olympus White", fascia:"SW 7005 Pure White"},
+    "12": {primary:"SW 6177 Softened Green", trim:"SW 9166 Drift of Mist", fascia:"SW 6208 Pewter Green"},
+    "13": {primary:"SW 6194 Basil", trim:"SW 7757 High Reflective White", fascia:"SW 7005 Pure White"},
+    "14": {primary:"SW 6700 Daybreak", trim:"SW 7551 Greek Villa", fascia:"SW 7551 Greek Villa"}
   };
 
   function getExteriorType(){
@@ -2424,6 +2753,8 @@ const fields = {
 
       $("v2Scheme").value = "";
       $("v2Door").value = "";
+      $("v2Garage").value = "";
+      $("v2Shutters").value = "";
 
       if(type !== "brick"){
         $("v2Brick").value = "";
@@ -2431,6 +2762,9 @@ const fields = {
 
       populateSchemeOptions();
       populateDoorOptions();
+      populateGarageOptions();
+      populateShutterOptions();
+      updateSchemeColorSummary();
 
     }
 
@@ -2498,27 +2832,134 @@ const fields = {
     }
   }
 
+  function uniqueColors(values){
+    return [...new Set((values || []).filter(Boolean))];
+  }
+
+  function fixedColorsForCurrentScheme(){
+    return SCHEME_FIXED_COLORS[$("v2Scheme").value] || null;
+  }
+
+  function updateSchemeColorSummary(){
+    const colors = fixedColorsForCurrentScheme();
+    const type = getExteriorType();
+    const box = $("v2SchemeSummary");
+
+    if(!colors){
+      box.style.display = "none";
+      return;
+    }
+
+    box.style.display = "block";
+    $("v2PrimaryColor").textContent = colors.primary || "—";
+    $("v2SecondaryColor").textContent = colors.secondary || "—";
+    $("v2TrimColor").textContent = colors.trim || "—";
+    $("v2FasciaColor").textContent = colors.fascia || "—";
+    $("v2SecondaryColorRow").style.display =
+      type === "all-siding" ? "grid" : "none";
+  }
+
+  function fillColorSelect(select, values, selectedValue, placeholder){
+    select.innerHTML = "";
+
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = placeholder;
+    select.appendChild(first);
+
+    uniqueColors(values).forEach(color => {
+      const opt = document.createElement("option");
+      opt.value = color;
+      opt.textContent = color;
+      select.appendChild(opt);
+    });
+
+    if(selectedValue && uniqueColors(values).includes(selectedValue)){
+      select.value = selectedValue;
+    } else {
+      select.value = "";
+    }
+  }
+
   function populateDoorOptions(selectedValue=""){
     const schemeValue = $("v2Scheme").value;
     const colors = DOOR_COLORS_BY_SCHEME[schemeValue] || [];
     const door = $("v2Door");
 
-    door.innerHTML = '<option value="">' +
-      (schemeValue ? "Select Front Door Color" : "Choose Scheme First") +
-      "</option>";
-
-    colors.forEach(color => {
-      const opt = document.createElement("option");
-      opt.value = color;
-      opt.textContent = color;
-      door.appendChild(opt);
-    });
+    fillColorSelect(
+      door,
+      colors,
+      selectedValue,
+      schemeValue ? "Select Front Door Color" : "Choose Scheme First"
+    );
 
     door.disabled = !schemeValue;
+  }
 
-    if(selectedValue && colors.includes(selectedValue)){
-      door.value = selectedValue;
+  function populateGarageOptions(selectedValue=""){
+    const fixed = fixedColorsForCurrentScheme();
+    const garage = $("v2Garage");
+
+    if(!$("v2Door").value || !fixed){
+      fillColorSelect(
+        garage,
+        [],
+        "",
+        $("v2Scheme").value
+          ? "Choose Entry Door First"
+          : "Choose Scheme First"
+      );
+      garage.disabled = true;
+      return;
     }
+
+    const colors = uniqueColors([
+      fixed.fascia,
+      fixed.trim,
+      fixed.primary
+    ]);
+
+    fillColorSelect(
+      garage,
+      colors,
+      selectedValue,
+      "Select Garage Door Color"
+    );
+
+    garage.disabled = false;
+  }
+
+  function populateShutterOptions(selectedValue=""){
+    const fixed = fixedColorsForCurrentScheme();
+    const shutters = $("v2Shutters");
+
+    if(!$("v2Garage").value || !$("v2Door").value || !fixed){
+      fillColorSelect(
+        shutters,
+        [],
+        "",
+        $("v2Garage").value
+          ? "Select Shutter Color"
+          : "Choose Garage Door First"
+      );
+      shutters.disabled = true;
+      return;
+    }
+
+    const colors = uniqueColors([
+      $("v2Door").value,
+      fixed.fascia,
+      $("v2Garage").value
+    ]);
+
+    fillColorSelect(
+      shutters,
+      colors,
+      selectedValue,
+      "Select Shutter Color"
+    );
+
+    shutters.disabled = false;
   }
 
 
@@ -2573,6 +3014,13 @@ const fields = {
 
 
   async function pushChangesToShared(changes){
+
+    if(LOCAL_TEST_MODE){
+      localStorage.setItem(STORAGE, JSON.stringify(state));
+      lastSyncedState = cloneState(state);
+      setSharedStatus("Local Test • Saved", "#2563eb");
+      return {ok:true, saved:changes.length, etags:{}};
+    }
 
     if(!changes.length){
       return { ok:true, saved:0, etags:{} };
@@ -2682,6 +3130,17 @@ const fields = {
 
   async function verifyHomesiteIsFresh(id){
 
+    if(LOCAL_TEST_MODE){
+      return {
+        fresh:true,
+        live:{
+          exists:!!state.data[id],
+          etag:null,
+          record:recordForState(state,id)
+        }
+      };
+    }
+
     const live =
     await getLiveHomesiteVersion(id);
 
@@ -2785,6 +3244,14 @@ const fields = {
 
 
   async function loadSharedState(){
+
+    if(LOCAL_TEST_MODE){
+      lastSyncedState = cloneState(state);
+      setSharedStatus("Local Test • No Netlify", "#2563eb");
+      updateLabels();
+      paint();
+      return;
+    }
 
     setSharedStatus(
       "Connecting…"
@@ -3096,6 +3563,17 @@ const fields = {
       out.brick = "";
     }
 
+    const fixed =
+    SCHEME_FIXED_COLORS[out.scheme] || {};
+
+    out.primaryColor = fixed.primary || "";
+    out.secondaryColor =
+      out.exteriorType === "all-siding"
+      ? (fixed.secondary || "")
+      : "";
+    out.trimColor = fixed.trim || "";
+    out.fasciaColor = fixed.fascia || "";
+
     return out;
 
   }
@@ -3121,37 +3599,23 @@ const fields = {
         ? "All Siding / No Brick"
         : "Choose Elevation First";
 
+    $("v2Address").value = d.address || "";
+    $("v2Plan").value = d.plan || "";
+    $("v2Elevation").value = d.elevation || "";
+
     renderExteriorTypeUI();
+
+    if(type === "brick"){
+      $("v2Brick").value = d.brick || "";
+    } else {
+      $("v2Brick").value = "";
+    }
+
     populateSchemeOptions(d.scheme || "");
+    updateSchemeColorSummary();
     populateDoorOptions(d.door || "");
-
-    Object.entries(
-      fields
-    )
-    .forEach(
-      ([key,inputId]) => {
-
-        if(
-          key === "scheme" ||
-          key === "door"
-        ){
-          return;
-        }
-
-        if(
-          key === "brick" &&
-          type !== "brick"
-        ){
-          $(inputId).value = "";
-          return;
-        }
-
-        $(inputId).value =
-        d[key] || "";
-
-      }
-    );
-
+    populateGarageOptions(d.garage || "");
+    populateShutterOptions(d.shutters || "");
   }
 
 
@@ -3165,12 +3629,31 @@ const fields = {
         locked:false,
         lastSavedAt:"",
         overrideReason:"",
-        overrideAt:""
+        overrideAt:"",
+        homeSaved:false,
+        homeSavedAt:"",
+        exteriorSaved:false,
+        exteriorSavedAt:""
       };
 
     }
 
-    return state.meta[id];
+    const m = state.meta[id];
+
+    // Existing fully saved records are treated as both stages complete.
+    if(m.locked && m.homeSaved === undefined){
+      m.homeSaved = true;
+    }
+    if(m.locked && m.exteriorSaved === undefined){
+      m.exteriorSaved = true;
+    }
+
+    if(m.homeSaved === undefined) m.homeSaved = false;
+    if(m.homeSavedAt === undefined) m.homeSavedAt = "";
+    if(m.exteriorSaved === undefined) m.exteriorSaved = !!m.locked;
+    if(m.exteriorSavedAt === undefined) m.exteriorSavedAt = m.lastSavedAt || "";
+
+    return m;
 
   }
 
@@ -3196,151 +3679,186 @@ const fields = {
 
   function renderLockState(){
 
-    if(
-      !selected
-    ){
-
+    if(!selected){
       return;
-
     }
 
+    const m = metaFor(selected);
+    const finalLocked =
+      !!m.exteriorSaved &&
+      unlockedForEdit !== selected;
 
-    const m =
-    metaFor(selected);
+    const homeLocked =
+      finalLocked ||
+      (!!m.homeSaved && homeEditingFor !== selected);
 
+    const homeStage = $("v2StageHome");
+    const homeFields = $("v2HomeFields");
+    const homeSummary = $("v2HomeSummary");
 
-    const locked =
-    formIsLocked();
+    const showCompactHome =
+      !!m.homeSaved &&
+      homeEditingFor !== selected;
 
+    homeStage.classList.toggle(
+      "saved-collapsed",
+      showCompactHome
+    );
+
+    homeFields.classList.toggle(
+      "collapsed",
+      showCompactHome
+    );
+
+    homeSummary.classList.toggle(
+      "show",
+      showCompactHome
+    );
+
+    const savedHomeData =
+      state.data[selected] || {};
+
+    $("v2HomeSummaryAddress").textContent =
+      savedHomeData.address || "—";
+
+    $("v2HomeSummaryPlanElevation").textContent =
+      (savedHomeData.plan || "—") +
+      " / " +
+      (savedHomeData.elevation || "—");
+
+    const homeIds = [
+      "v2Address",
+      "v2Plan",
+      "v2Elevation"
+    ];
+
+    homeIds.forEach(id => {
+      $(id).disabled = homeLocked;
+    });
 
     document
-    .querySelectorAll(
-      'input[name="v2ExteriorType"]'
-    )
-    .forEach(
-      radio => {
-        radio.disabled = locked;
-      }
+    .querySelectorAll('input[name="v2ExteriorType"]')
+    .forEach(radio => {
+      radio.disabled = homeLocked;
+    });
+
+    $("v2SaveHome").disabled =
+      finalLocked ||
+      (!!m.homeSaved && homeEditingFor !== selected);
+
+    $("v2EditHome").style.display =
+      m.homeSaved &&
+      !finalLocked &&
+      homeEditingFor !== selected
+        ? "inline-block"
+        : "none";
+
+    const stage2Enabled =
+      !!m.homeSaved &&
+      !finalLocked;
+
+    $("v2StageExterior").classList.toggle(
+      "v2-stage-disabled",
+      !m.homeSaved
     );
 
+    renderExteriorTypeUI();
 
-    Object.values(
-      fields
-    )
-    .forEach(
+    // Stage 2 controls.
+    $("v2Brick").disabled =
+      !stage2Enabled ||
+      getExteriorType() !== "brick";
 
-      id => {
+    $("v2Scheme").disabled =
+      !stage2Enabled ||
+      !getExteriorType();
 
-        $(id).disabled =
-        locked;
+    $("v2Door").disabled =
+      !stage2Enabled ||
+      !$("v2Scheme").value;
 
-      }
+    $("v2Garage").disabled =
+      !stage2Enabled ||
+      !$("v2Door").value;
 
-    );
-
+    $("v2Shutters").disabled =
+      !stage2Enabled ||
+      !$("v2Garage").value;
 
     $("v2Save").disabled =
-    locked;
-
+      !stage2Enabled;
 
     $("v2Clear").disabled =
-    locked;
-
-
-    if(
-      !locked
-    ){
-      renderExteriorTypeUI();
-      $("v2Scheme").disabled = !getExteriorType();
-      $("v2Door").disabled = !$("v2Scheme").value;
-    }
-
+      finalLocked;
 
     $("v2ClearSavedHome").style.display =
-    m.locked
-      ? "inline-block"
-      : "none";
-
+      (m.homeSaved || m.exteriorSaved || m.locked)
+        ? "inline-block"
+        : "none";
 
     $("v2Unlock").style.display =
+      m.exteriorSaved && finalLocked
+        ? "inline-block"
+        : "none";
 
-    m.locked && locked
+    const homeChip = $("v2HomeStageChip");
+    const exteriorChip = $("v2ExteriorStageChip");
 
-    ?
+    if(m.homeSaved){
+      homeChip.textContent = "Saved";
+      homeChip.className = "v2-stage-chip saved";
+    } else {
+      homeChip.textContent = "Not Saved";
+      homeChip.className = "v2-stage-chip";
+    }
 
-    "inline-block"
+    if(m.exteriorSaved){
+      exteriorChip.textContent = "Complete";
+      exteriorChip.className = "v2-stage-chip complete";
+    } else if(m.homeSaved){
+      exteriorChip.textContent = "Ready";
+      exteriorChip.className = "v2-stage-chip saved";
+    } else {
+      exteriorChip.textContent = "Waiting for Home";
+      exteriorChip.className = "v2-stage-chip";
+    }
 
-    :
+    const box = $("v2LockText");
 
-    "none";
-
-
-    const box =
-    $("v2LockText");
-
-
-    if(
-      m.locked && locked
-    ){
+    if(m.exteriorSaved && finalLocked){
 
       let extra = "";
 
-
-      if(
-        m.overrideReason
-      ){
-
+      if(m.overrideReason){
         extra =
-        '<span class="override"><b>Conflict Override:</b> '
-        +
-        esc(m.overrideReason)
-        +
-        "</span>";
-
+          '<span class="override"><b>Conflict Override:</b> ' +
+          esc(m.overrideReason) +
+          "</span>";
       }
 
+      box.innerHTML =
+        "<strong>✓ Home + Exterior Complete</strong>" +
+        "Both stages are saved. This homesite is finalized and protected from accidental changes." +
+        extra;
+
+    } else if(m.exteriorSaved && unlockedForEdit === selected){
 
       box.innerHTML =
+        "<strong>⚠ Finalized Home Unlocked</strong>" +
+        "Changes are not final until the applicable stage is saved again.";
 
-      "<strong>✓ Saved &amp; Locked</strong>"
-
-      +
-
-      "This homesite is protected from accidental changes."
-
-      +
-
-      extra;
-
-    }
-
-    else if(
-      m.locked &&
-      unlockedForEdit === selected
-    ){
+    } else if(m.homeSaved){
 
       box.innerHTML =
+        "<strong>✓ Home Saved • Exterior Pending</strong>" +
+        "The sold home is recorded. Complete Stage 2 when exterior selections are available.";
 
-      "<strong>⚠ Editing Unlocked</strong>"
-
-      +
-
-      "Changes are not final until Save &amp; Check is clicked again.";
-
-    }
-
-    else{
+    } else {
 
       box.innerHTML =
-
-      "<strong>Not yet saved</strong>"
-
-      +
-
-      "Enter the approved selections, then click Save &amp; Check.";
-
+        "<strong>Stage 1 Not Saved</strong>" +
+        "Enter Address, Plan, and Elevation, then click Save Home.";
     }
-
   }
 
 
@@ -3728,6 +4246,8 @@ function labelHTML(id, d) {
 
           "v2-conflict",
 
+          "v2-home-saved",
+
           "v2-finalized"
 
         );
@@ -3735,14 +4255,16 @@ function labelHTML(id, d) {
 
         if(
           state.meta &&
-          state.meta[id] &&
-          state.meta[id].locked
+          state.meta[id]
         ){
+          const mapMeta = metaFor(id);
 
-          el.classList.add(
-            "v2-finalized"
-          );
-
+          if(mapMeta.exteriorSaved || mapMeta.locked){
+            el.classList.add("v2-finalized");
+          }
+          else if(mapMeta.homeSaved){
+            el.classList.add("v2-home-saved");
+          }
         }
 
 
@@ -4092,6 +4614,16 @@ function labelHTML(id, d) {
       ],
 
       [
+        "garage",
+        "Garage Door Color"
+      ],
+
+      [
+        "shutters",
+        "Shutter Color"
+      ],
+
+      [
         "brick",
         "Brick"
       ]
@@ -4155,6 +4687,9 @@ function labelHTML(id, d) {
                 id:
                 otherId,
 
+                key:
+                key,
+
                 label:
                 label,
 
@@ -4179,6 +4714,80 @@ function labelHTML(id, d) {
   }
 
 
+  function clearFieldConflictHighlights(){
+
+    const ids = [
+      "v2Plan",
+      "v2Elevation",
+      "v2Brick",
+      "v2Scheme",
+      "v2Door",
+      "v2Garage",
+      "v2Shutters"
+    ];
+
+    ids.forEach(id => {
+      const field = $(id);
+      if(!field) return;
+
+      field.classList.remove(
+        "v2-field-conflict"
+      );
+
+      const label =
+        document.querySelector(
+          'label[for="' + id + '"]'
+        );
+
+      if(label){
+        label.classList.remove(
+          "v2-label-conflict"
+        );
+      }
+    });
+  }
+
+
+  function highlightConflictField(key){
+
+    const fieldByKey = {
+      plan:"v2Plan",
+      elevation:"v2Elevation",
+      brick:"v2Brick",
+      scheme:"v2Scheme",
+      door:"v2Door",
+      garage:"v2Garage",
+      shutters:"v2Shutters"
+    };
+
+    const id =
+      fieldByKey[key];
+
+    if(!id){
+      return;
+    }
+
+    const field = $(id);
+
+    if(field){
+      field.classList.add(
+        "v2-field-conflict"
+      );
+    }
+
+    const label =
+      document.querySelector(
+        'label[for="' + id + '"]'
+      );
+
+    if(label){
+      label.classList.add(
+        "v2-label-conflict"
+      );
+    }
+  }
+
+
   function checkConflicts(
     useForm = true
   ){
@@ -4186,138 +4795,75 @@ function labelHTML(id, d) {
     if(
       !selected
     ){
-
       return;
-
     }
 
-
     const d =
-
-    useForm
-
-    ?
-
-    readForm()
-
-    :
-
-    (
-      state.data[
-        selected
-      ]
-      ||
-      {}
-    );
-
+      useForm
+        ? readForm()
+        : (
+            state.data[
+              selected
+            ]
+            ||
+            {}
+          );
 
     const conflicts =
-    conflictsFor(
-      d
-    );
-
+      conflictsFor(
+        d
+      );
 
     const conflictIds =
-
-    [
-      ...new Set(
-
-        conflicts.map(
-          c =>
-          c.id
+      [
+        ...new Set(
+          conflicts.map(
+            c => c.id
+          )
         )
-
-      )
-    ];
-
+      ];
 
     paint(
       conflictIds
     );
 
+    clearFieldConflictHighlights();
+
+    conflicts.forEach(
+      c => {
+        highlightConflictField(
+          c.key
+        );
+      }
+    );
 
     const box =
-    $("v2Status");
-
+      $("v2Status");
 
     if(
       !conflicts.length
     ){
 
       box.className =
-      "v2-status ok";
-
+        "v2-status ok";
 
       box.innerHTML =
-
-      "<b>✓ No conflicts found.</b>" +
-
-      "<br>" +
-
-      "These selections do not repeat on any homesite currently marked as restricted.";
+        "<b>✓ No conflicts found</b>";
 
     }
 
     else{
 
       box.className =
-      "v2-status bad";
-
+        "v2-status bad";
 
       box.innerHTML =
-
-      "<b>✕ Conflict found.</b><br>"
-
-      +
-
-      conflicts
-      .map(
-
-        c =>
-
-        esc(
-          c.label
-        )
-
-        +
-
-        " “"
-
-        +
-
-        esc(
-          c.value
-        )
-
-        +
-
-        "” repeats on "
-
-        +
-
-        esc(
-          plotName(
-            c.id
-          )
-        )
-
-        +
-
-        "."
-
-      )
-      .join(
-        "<br>"
-      );
+        "<b>✕ Conflicts found</b>";
 
     }
 
   }
 
-
-  /* =========================================================
-     SELECT LOT
-     ========================================================= */
 
   function selectPlot(
     id
@@ -4348,6 +4894,9 @@ function labelHTML(id, d) {
 
 
     unlockedForEdit =
+    null;
+
+    homeEditingFor =
     null;
 
 
@@ -4527,6 +5076,19 @@ function labelHTML(id, d) {
       savingId
     );
 
+    m.homeSaved =
+    true;
+
+    if(!m.homeSavedAt){
+      m.homeSavedAt = now;
+    }
+
+    m.exteriorSaved =
+    true;
+
+    m.exteriorSavedAt =
+    now;
+
     m.locked =
     true;
 
@@ -4630,6 +5192,9 @@ function labelHTML(id, d) {
     }
 
     unlockedForEdit =
+    null;
+
+    homeEditingFor =
     null;
 
     fillForm(
@@ -4746,17 +5311,15 @@ function labelHTML(id, d) {
     const missing = [];
 
     [
-      ["plan","House Plan"],
-      ["elevation","Elevation"],
       ["scheme","Scheme"],
-      ["door","Front Door Color"]
-    ].forEach(
-      ([key,label]) => {
-        if(!String(form[key] || "").trim()){
-          missing.push(label);
-        }
+      ["door","Front Door Color"],
+      ["garage","Garage Door Color"],
+      ["shutters","Shutter Color"]
+    ].forEach(([key,label]) => {
+      if(!String(form[key] || "").trim()){
+        missing.push(label);
       }
-    );
+    });
 
     if(
       form.exteriorType === "brick" &&
@@ -4766,7 +5329,6 @@ function labelHTML(id, d) {
     }
 
     return missing;
-
   }
 
 
@@ -4786,11 +5348,18 @@ function labelHTML(id, d) {
     ){
 
       alert(
-        "This homesite is saved and locked. Click UNLOCK before making changes."
+        "This homesite is finalized and locked. Click UNLOCK before making changes."
       );
 
       return;
 
+    }
+
+    if(!metaFor(selected).homeSaved){
+      alert(
+        "Save Stage 1 (Address, Plan, and Elevation) before saving exterior selections."
+      );
+      return;
     }
 
 
@@ -4831,6 +5400,18 @@ function labelHTML(id, d) {
       conflicts.length
     ){
 
+      clearFieldConflictHighlights();
+
+      conflicts.forEach(c => {
+        highlightConflictField(c.key);
+      });
+
+      $("v2Status").className =
+        "v2-status bad";
+
+      $("v2Status").innerHTML =
+        "<b>✕ Conflicts found</b>";
+
       showConflictOverride(
         conflicts
       );
@@ -4866,6 +5447,7 @@ function labelHTML(id, d) {
     }
 
     unlockedForEdit = null;
+    homeEditingFor = null;
     restrictionMode = false;
     restrictionEditUnlocked = false;
     restrictionBase = null;
@@ -4974,6 +5556,8 @@ function labelHTML(id, d) {
         true
       );
 
+      renderLockState();
+
       if(
         selected &&
         !formIsLocked()
@@ -4991,7 +5575,10 @@ function labelHTML(id, d) {
     "change",
     () => {
 
+      updateSchemeColorSummary();
       populateDoorOptions();
+      populateGarageOptions();
+      populateShutterOptions();
 
       if(
         selected &&
@@ -5001,6 +5588,44 @@ function labelHTML(id, d) {
         checkConflicts(true);
       }
 
+    }
+  );
+
+  $("v2Door")
+  .addEventListener(
+    "change",
+    () => {
+      populateGarageOptions();
+      populateShutterOptions();
+
+      if(selected && !formIsLocked()){
+        previewFromForm();
+        checkConflicts(true);
+      }
+    }
+  );
+
+  $("v2Garage")
+  .addEventListener(
+    "change",
+    () => {
+      populateShutterOptions();
+
+      if(selected && !formIsLocked()){
+        previewFromForm();
+        checkConflicts(true);
+      }
+    }
+  );
+
+  $("v2Shutters")
+  .addEventListener(
+    "change",
+    () => {
+      if(selected && !formIsLocked()){
+        previewFromForm();
+        checkConflicts(true);
+      }
     }
   );
 
@@ -5125,8 +5750,307 @@ function labelHTML(id, d) {
 
 
   /* =========================================================
+     STAGE 1 — SAVE SOLD HOME
+     ========================================================= */
+
+  async function saveHomeStage(){
+
+    if(!selected){
+      return;
+    }
+
+    const savingId = selected;
+    const m = metaFor(savingId);
+
+    if(m.exteriorSaved && formIsLocked()){
+      alert(
+        "This homesite is finalized and locked. Click UNLOCK before changing the home information."
+      );
+      return;
+    }
+
+    const address = ($("v2Address").value || "").trim();
+    const plan = ($("v2Plan").value || "").trim();
+    const elevation = ($("v2Elevation").value || "").trim();
+
+    const missing = [];
+
+    if(!address) missing.push("Address");
+    if(!plan) missing.push("House Plan");
+    if(!elevation) missing.push("Elevation");
+
+    if(missing.length){
+      alert(
+        "Complete Stage 1 before saving:\n\n• " +
+        missing.join("\n• ")
+      );
+      return;
+    }
+
+    const type = exteriorTypeFromElevation(elevation);
+
+    // Check Stage 1 conflicts before anything is written.
+    const stage1Candidate = {
+      ...(state.data[savingId] || {}),
+      address,
+      plan,
+      elevation,
+      exteriorType:type
+    };
+
+    const stage1Conflicts =
+      conflictsFor(stage1Candidate)
+      .filter(c =>
+        c.key === "plan" ||
+        c.key === "elevation"
+      );
+
+    clearFieldConflictHighlights();
+
+    stage1Conflicts.forEach(c => {
+      highlightConflictField(c.key);
+    });
+
+    if(stage1Conflicts.length){
+
+      const conflictIds = [
+        ...new Set(
+          stage1Conflicts.map(c => c.id)
+        )
+      ];
+
+      paint(conflictIds);
+
+      const statusBox = $("v2Status");
+      statusBox.className = "v2-status bad";
+      statusBox.innerHTML = "<b>✕ Conflicts found</b>";
+
+      alert(
+        "This home cannot be saved because Plan and/or Elevation conflicts with a restricted homesite.\n\nThe conflicting field is highlighted in red."
+      );
+
+      return;
+    }
+
+    // Verify that nobody else changed this homesite after it was opened.
+    let freshness;
+
+    try{
+      setSharedStatus(
+        "Checking latest…",
+        "#8a6b00"
+      );
+
+      freshness =
+        await verifyHomesiteIsFresh(
+          savingId
+        );
+    }
+    catch(error){
+      console.error(error);
+
+      setSharedStatus(
+        "Could not verify",
+        "#dc2626"
+      );
+
+      alert(
+        "The site could not verify the latest shared information for this homesite, so your Save Home action was stopped.\n\nYour typed information is still in the form. Check your connection and try again."
+      );
+
+      return;
+    }
+
+    if(!freshness.fresh){
+
+      setSharedStatus(
+        "Update detected",
+        "#dc2626"
+      );
+
+      if(
+        freshness.live &&
+        freshness.live.exists
+      ){
+        sharedEtags[savingId] =
+          freshness.live.etag;
+      }
+
+      alert(
+        "This homesite was updated on another device while you were working on it.\n\nYour typed information has NOT been deleted, but Save Home was stopped so you do not overwrite the newer information.\n\nClose and reopen this homesite to load the current saved information."
+      );
+
+      return;
+    }
+
+    const previousRecord =
+      recordForState(
+        state,
+        savingId
+      );
+
+    const current =
+      state.data[savingId] || {};
+
+    state.data[savingId] = {
+      ...current,
+      address,
+      plan,
+      elevation,
+      exteriorType:type
+    };
+
+    if(type === "all-siding"){
+      state.data[savingId].brick = "";
+    }
+
+    const now =
+      new Date()
+      .toISOString();
+
+    m.homeSaved = true;
+    m.homeSavedAt = now;
+
+    // If Stage 1 changes after exterior completion, Stage 2 becomes pending.
+    if(m.exteriorSaved && unlockedForEdit === savingId){
+      m.exteriorSaved = false;
+      m.exteriorSavedAt = "";
+      m.locked = false;
+      m.lastSavedAt = "";
+      m.overrideReason = "";
+      m.overrideAt = "";
+    }
+
+    const currentRecord =
+      recordForState(
+        state,
+        savingId
+      );
+
+    // Keep the browser cache current, but only consider the save complete
+    // after Netlify accepts the conditional write.
+    localStorage.setItem(
+      STORAGE,
+      JSON.stringify(state)
+    );
+
+    try{
+
+      await pushChangesToShared([
+        {
+          id:savingId,
+          record:currentRecord,
+          expectedEtag:
+          Object.prototype.hasOwnProperty.call(
+            openedEtags,
+            savingId
+          )
+          ? openedEtags[savingId]
+          : null
+        }
+      ]);
+
+    }
+    catch(error){
+
+      // Restore the real saved state without replacing the user's typed form.
+      state.plots[savingId] =
+        cloneState(previousRecord.plot);
+
+      if(previousRecord.data === null){
+        delete state.data[savingId];
+      }
+      else{
+        state.data[savingId] =
+          cloneState(previousRecord.data);
+      }
+
+      state.meta[savingId] =
+        cloneState(previousRecord.meta);
+
+      localStorage.setItem(
+        STORAGE,
+        JSON.stringify(state)
+      );
+
+      updateLabels();
+      paint();
+
+      if(
+        error &&
+        error.code === "STALE_HOMESITE"
+      ){
+        setSharedStatus(
+          "Update detected",
+          "#dc2626"
+        );
+
+        alert(
+          "Someone else saved this homesite just before your Save Home action completed.\n\nYour typed information has NOT been deleted, and the newer shared record was protected from being overwritten.\n\nClose and reopen this homesite to load the current information."
+        );
+      }
+      else{
+        console.error(error);
+
+        setSharedStatus(
+          "Not synced",
+          "#dc2626"
+        );
+
+        alert(
+          "Save Home could not be completed in shared storage.\n\nYour typed information is still in the form. Please try again."
+        );
+      }
+
+      return;
+    }
+
+    clearFieldConflictHighlights();
+
+    $("v2Status").className =
+      "v2-status ok";
+
+    $("v2Status").innerHTML =
+      "<b>✓ No conflicts found</b>";
+
+    homeEditingFor = null;
+
+    updateLabels();
+    fillForm(savingId);
+    renderRestrictions();
+    renderLockState();
+    checkConflicts(false);
+    paint();
+
+    alert(
+      "Home saved. This lot is now marked as Home Saved / Exterior Pending."
+    );
+  }
+
+
+  /* =========================================================
      BUTTONS
      ========================================================= */
+
+  $("v2SaveHome")
+  .addEventListener(
+    "click",
+    saveHomeStage
+  );
+
+  $("v2EditHome")
+  .addEventListener(
+    "click",
+    () => {
+      if(!selected || !metaFor(selected).homeSaved){
+        return;
+      }
+
+      homeEditingFor = selected;
+      renderLockState();
+      $("v2Address").focus();
+    }
+  );
 
   $("v2Save")
   .addEventListener(
@@ -5173,6 +6097,9 @@ function labelHTML(id, d) {
 
 
       unlockedForEdit =
+      selected;
+
+      homeEditingFor =
       selected;
 
 
@@ -5357,7 +6284,7 @@ function labelHTML(id, d) {
       confirm(
         "WARNING: This homesite already has finalized selections saved.\n\n"
         +
-        "Clearing this home will permanently remove its saved Plan, Elevation, Exterior Type, Brick, Scheme, and Front Door Color from this browser and the lot will no longer show as finalized.\n\n"
+        "Clearing this home will permanently remove both Stage 1 and Stage 2 information, including Address, Plan, Elevation, Brick, Scheme, Entry Door, Garage, and Shutters. The lot will return to the unsaved color.\n\n"
         +
         "This should only be used when the home is no longer moving forward, such as after a buyer cancellation.\n\n"
         +
@@ -5387,7 +6314,11 @@ function labelHTML(id, d) {
         locked:false,
         lastSavedAt:"",
         overrideReason:"",
-        overrideAt:""
+        overrideAt:"",
+        homeSaved:false,
+        homeSavedAt:"",
+        exteriorSaved:false,
+        exteriorSavedAt:""
       };
 
 
@@ -5473,6 +6404,14 @@ function labelHTML(id, d) {
 
       );
 
+
+      setExteriorType("");
+      renderExteriorTypeUI();
+      populateSchemeOptions();
+      populateDoorOptions();
+      populateGarageOptions();
+      populateShutterOptions();
+      updateSchemeColorSummary();
 
       updateLabels(
 
