@@ -1581,6 +1581,57 @@ svg.v2-map-idle .lot.v2-home-saved{
   margin-bottom:0;
 }
 
+/* =========================================================
+   COMPACT SAVED EXTERIOR SUMMARY
+   Completed exteriors collapse just like saved Home Information.
+   UNLOCK expands the full exterior controls again.
+   ========================================================= */
+.v2-exterior-fields.collapsed{display:none}
+#v2StageExterior.saved-collapsed{
+  background:#f3f4f6;
+  border-color:#d1d5db;
+}
+#v2StageExterior.saved-collapsed .v2-stage-head{
+  margin-bottom:0;
+}
+.v2-exterior-summary{
+  display:none;
+  margin-top:10px;
+  padding:10px 11px;
+  border:1px solid #dfe3e6;
+  border-radius:8px;
+  background:#fff;
+}
+.v2-exterior-summary.show{display:block}
+.v2-exterior-summary-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px 10px;
+}
+.v2-exterior-summary-item{
+  min-width:0;
+}
+.v2-exterior-summary-item.full{
+  grid-column:1 / -1;
+}
+.v2-exterior-summary-label{
+  display:block;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.07em;
+  color:#6b7280;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.v2-exterior-summary-value{
+  display:block;
+  font-size:11px;
+  font-weight:800;
+  color:#1f2937;
+  line-height:1.3;
+  white-space:normal;
+}
+
 
 /* =========================================================
    COMPACT CONFLICT STATUS
@@ -1936,6 +1987,8 @@ label.v2-label-conflict{
     <span class="v2-stage-chip" id="v2ExteriorStageChip">Waiting for Home</span>
   </div>
 
+  <div class="v2-exterior-fields" id="v2ExteriorFields">
+
   <div id="v2BrickWrap" style="display:none">
     <label for="v2Brick">Brick *</label>
     <select id="v2Brick">
@@ -2006,6 +2059,56 @@ label.v2-label-conflict{
 
   <div class="v2-stage-actions">
     <button type="button" class="primary" id="v2Save">Save Exterior</button>
+  </div>
+  </div>
+
+  <div class="v2-exterior-summary" id="v2ExteriorSummary">
+    <div class="v2-exterior-summary-grid">
+      <div class="v2-exterior-summary-item" id="v2ExteriorSummaryBrickItem">
+        <span class="v2-exterior-summary-label">Brick</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryBrick">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item">
+        <span class="v2-exterior-summary-label">Scheme</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryScheme">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item">
+        <span class="v2-exterior-summary-label">Primary Siding</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryPrimary">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item" id="v2ExteriorSummarySecondaryItem">
+        <span class="v2-exterior-summary-label">Secondary Siding</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummarySecondary">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item">
+        <span class="v2-exterior-summary-label">Trim / Soffit / Columns</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryTrim">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item">
+        <span class="v2-exterior-summary-label">Fascia</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryFascia">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item">
+        <span class="v2-exterior-summary-label">Front Door</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryDoor">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item">
+        <span class="v2-exterior-summary-label">Garage Door</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryGarage">—</span>
+      </div>
+
+      <div class="v2-exterior-summary-item full">
+        <span class="v2-exterior-summary-label">Shutters</span>
+        <span class="v2-exterior-summary-value" id="v2ExteriorSummaryShutters">—</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3761,6 +3864,86 @@ const fields = {
       "v2-stage-disabled",
       !m.homeSaved
     );
+
+    // Completed exteriors collapse into a clean read-only summary.
+    // Clicking UNLOCK expands the full controls again.
+    const exteriorFields = $("v2ExteriorFields");
+    const exteriorSummary = $("v2ExteriorSummary");
+
+    const showCompactExterior =
+      !!m.exteriorSaved &&
+      finalLocked;
+
+    $("v2StageExterior").classList.toggle(
+      "saved-collapsed",
+      showCompactExterior
+    );
+
+    exteriorFields.classList.toggle(
+      "collapsed",
+      showCompactExterior
+    );
+
+    exteriorSummary.classList.toggle(
+      "show",
+      showCompactExterior
+    );
+
+    const savedExteriorData =
+      state.data[selected] || {};
+
+    const fixedExteriorColors =
+      SCHEME_FIXED_COLORS[savedExteriorData.scheme] || {};
+
+    // Show the friendly brick name instead of only "Brick 1", etc.
+    const brickOption =
+      Array.from($("v2Brick").options)
+      .find(option => option.value === savedExteriorData.brick);
+
+    $("v2ExteriorSummaryBrick").textContent =
+      brickOption
+        ? brickOption.textContent
+        : (savedExteriorData.brick || "—");
+
+    $("v2ExteriorSummaryScheme").textContent =
+      savedExteriorData.scheme
+        ? "Scheme " + savedExteriorData.scheme
+        : "—";
+
+    $("v2ExteriorSummaryPrimary").textContent =
+      fixedExteriorColors.primary || "—";
+
+    $("v2ExteriorSummarySecondary").textContent =
+      fixedExteriorColors.secondary || "—";
+
+    $("v2ExteriorSummaryTrim").textContent =
+      fixedExteriorColors.trim || "—";
+
+    $("v2ExteriorSummaryFascia").textContent =
+      fixedExteriorColors.fascia || "—";
+
+    $("v2ExteriorSummaryDoor").textContent =
+      savedExteriorData.door || "—";
+
+    $("v2ExteriorSummaryGarage").textContent =
+      savedExteriorData.garage || "—";
+
+    $("v2ExteriorSummaryShutters").textContent =
+      savedExteriorData.shutters || "—";
+
+    const savedExteriorType =
+      savedExteriorData.exteriorType ||
+      exteriorTypeFromElevation(savedExteriorData.elevation);
+
+    $("v2ExteriorSummaryBrickItem").style.display =
+      savedExteriorType === "brick"
+        ? "block"
+        : "none";
+
+    $("v2ExteriorSummarySecondaryItem").style.display =
+      savedExteriorType === "all-siding"
+        ? "block"
+        : "none";
 
     renderExteriorTypeUI();
 
