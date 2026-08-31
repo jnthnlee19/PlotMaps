@@ -60,6 +60,99 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
     right:22px;
     z-index:20;
   }
+
+/* =========================================================
+   ADELTON QUICK EDIT + MOVABLE PANEL
+   ========================================================= */
+.v2-drag-handle{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  box-sizing:border-box;
+  margin:0 0 10px;
+  padding:8px 10px;
+  border:1px solid #d7b43b;
+  border-radius:7px;
+  background:#fff4c2;
+  color:#5f4a00;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:grab !important;
+  user-select:none;
+  touch-action:none;
+  pointer-events:auto !important;
+  position:relative;
+  z-index:999;
+}
+.v2-drag-handle:hover{background:#f9e68c}
+.v2-drag-handle:active{cursor:grabbing !important}
+.v2-drag-grip{font-size:17px;line-height:1}
+.v2-dragging{transition:none !important}
+
+.v2-quick-setup{
+  display:none;
+  margin:0 0 10px;
+  padding:10px;
+  border:1px solid #dfe3e6;
+  border-top:3px solid #f2c94c;
+  border-radius:9px;
+  background:#fafafa;
+}
+.v2-quick-setup.show{display:block}
+.v2-quick-setup-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr auto;
+  gap:7px;
+  align-items:end;
+}
+.v2-quick-setup-grid label{
+  margin-top:0;
+}
+.v2-quick-setup-grid input{
+  padding:7px 8px;
+  font-size:12px;
+}
+.v2-quick-setup-save{
+  white-space:nowrap;
+  padding:8px 10px;
+}
+.v2-quick-restrictions{
+  margin-top:10px;
+  padding-top:9px;
+  border-top:1px solid #e5e7eb;
+}
+.v2-quick-restriction-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.v2-quick-restriction-head button{
+  white-space:nowrap;
+  padding:7px 9px;
+  font-size:11px;
+}
+#v2QuickRestrictionMode.active{
+  background:#f2c94c;
+  color:#111827;
+}
+#v2QuickRestrictionChips{
+  margin-top:7px;
+}
+@media(max-width:520px){
+  .v2-quick-setup-grid{
+    grid-template-columns:1fr 1fr;
+  }
+  .v2-quick-setup-save{
+    grid-column:1 / -1;
+    width:100%;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1857,6 +1950,11 @@ label.v2-label-conflict{
 
   aside.innerHTML = `
 
+    <div class="v2-drag-handle" id="v2DragHandle" title="Click and drag to move this box">
+      <span class="v2-drag-grip">⠿</span>
+      Click + Drag to Move
+    </div>
+
     <div class="v2-panel-eyebrow">HOMESITE DETAILS</div>
 
     <h2 id="v2PlotTitle">
@@ -1865,6 +1963,49 @@ label.v2-label-conflict{
 
     <div class="v2-help v2-panel-intro">
       Choose a homesite on the map to review or enter its approved exterior selections.
+    </div>
+
+    <!-- Password-protected setup controls. Hidden outside Edit mode. -->
+    <div class="v2-quick-setup" id="v2QuickSetup">
+      <div class="v2-title">Lot / Block + Restrictions</div>
+
+      <div class="v2-quick-setup-grid">
+        <div>
+          <label for="v2EditLot">Lot</label>
+          <input id="v2EditLot" placeholder="Lot">
+        </div>
+
+        <div>
+          <label for="v2EditBlock">Block</label>
+          <input id="v2EditBlock" placeholder="Block">
+        </div>
+
+        <button type="button" class="primary v2-quick-setup-save" id="v2SaveSetup">
+          Save Setup
+        </button>
+      </div>
+
+      <div class="v2-quick-restrictions">
+        <div class="v2-quick-restriction-head">
+          <div>
+            <div class="v2-title" style="margin:0;">Restricted Lots</div>
+            <div class="v2-help" id="v2QuickRestrictionHelp">
+              Click <b>Add Restricted Lots</b>, then click the homesites on the map that cannot repeat this lot.
+            </div>
+          </div>
+
+          <button type="button" class="secondary" id="v2QuickRestrictionMode">
+            Add Restricted Lots
+          </button>
+        </div>
+
+        <label class="v2-check" style="margin-top:8px;">
+          <input type="checkbox" id="v2QuickTwoWay" checked>
+          Make restrictions two-way automatically
+        </label>
+
+        <div class="v2-chips" id="v2QuickRestrictionChips"></div>
+      </div>
     </div>
 
 
@@ -3586,6 +3727,53 @@ const fields = {
 
 
   /* =========================================================
+     LOT / BLOCK DISPLAY
+     PERMANENT_LOTS remain the baked-in defaults.
+     Edit-mode changes are stored in state.meta so they sync
+     through the existing Netlify record format.
+     ========================================================= */
+
+  function lotBlockFor(id){
+
+    const fixed =
+    PERMANENT_LOTS[id] || {};
+
+    const meta =
+    (
+      state.meta &&
+      state.meta[id]
+    )
+    ? state.meta[id]
+    : {};
+
+    const hasLotOverride =
+    Object.prototype.hasOwnProperty.call(
+      meta,
+      "lotOverride"
+    );
+
+    const hasBlockOverride =
+    Object.prototype.hasOwnProperty.call(
+      meta,
+      "blockOverride"
+    );
+
+    return {
+      lot:
+      hasLotOverride
+      ? String(meta.lotOverride || "")
+      : String(fixed.lot || ""),
+
+      tract:
+      hasBlockOverride
+      ? String(meta.blockOverride || "")
+      : String(fixed.tract || "")
+    };
+
+  }
+
+
+  /* =========================================================
      LOT DISPLAY NAME
      ========================================================= */
 
@@ -3594,28 +3782,23 @@ const fields = {
     const saved =
     state.data[id] || {};
 
-    const fixed =
-    PERMANENT_LOTS[id] || {};
-
-    const d = {
-      ...saved,
-      ...fixed
-    };
+    const assigned =
+    lotBlockFor(id);
 
 
     const address =
-    d.address || "";
+    saved.address || "";
 
 
     const lot =
-    d.lot
+    assigned.lot
     ?
     "Lot " +
-    d.lot +
+    assigned.lot +
     (
-      d.tract
+      assigned.tract
       ?
-      " / Block " + d.tract
+      " / Block " + assigned.tract
       :
       ""
     )
@@ -4051,22 +4234,21 @@ const fields = {
 
 function labelHTML(id, d) {
 
-  const fixed = PERMANENT_LOTS[id] || {};
+  const assigned = lotBlockFor(id);
   const saved = state.data[id] || {};
 
   d = {
     ...saved,
-    ...(d || {}),
-    ...fixed
+    ...(d || {})
   };
 
   const lines = [];
 
-  // LOT / BLOCK (PERMANENT)
-  if (d.lot || d.tract) {
+  // LOT / BLOCK
+  if (assigned.lot || assigned.tract) {
     lines.push(
-      esc(d.lot || "") +
-      (d.tract ? " / " + esc(d.tract) : "")
+      esc(assigned.lot || "") +
+      (assigned.tract ? " / " + esc(assigned.tract) : "")
     );
   }
 
@@ -4512,6 +4694,133 @@ function labelHTML(id, d) {
      RESTRICTIONS
      ========================================================= */
 
+  function renderQuickSetup(){
+
+    const box =
+    $("v2QuickSetup");
+
+    if(!box){
+      return;
+    }
+
+    const show =
+    !!selected &&
+    !!restrictionEditUnlocked;
+
+    box.classList.toggle(
+      "show",
+      show
+    );
+
+    if(!show){
+      return;
+    }
+
+    const assigned =
+    lotBlockFor(selected);
+
+    $("v2EditLot").value =
+    assigned.lot || "";
+
+    $("v2EditBlock").value =
+    assigned.tract || "";
+
+    if(
+      $("v2QuickTwoWay") &&
+      $("v2TwoWay")
+    ){
+      $("v2QuickTwoWay").checked =
+      $("v2TwoWay").checked;
+    }
+
+    const chips =
+    $("v2QuickRestrictionChips");
+
+    chips.innerHTML = "";
+
+    const list =
+    (
+      state.plots[selected] &&
+      Array.isArray(state.plots[selected].restricted)
+    )
+    ? state.plots[selected].restricted
+    : [];
+
+    if(!list.length){
+
+      chips.innerHTML =
+      '<span class="v2-help">No restricted homesites selected yet.</span>';
+
+    }
+    else{
+
+      list.forEach(id => {
+
+        const chip =
+        document.createElement("span");
+
+        chip.className =
+        "v2-chip";
+
+        chip.append(
+          document.createTextNode(
+            plotName(id)
+          )
+        );
+
+        const remove =
+        document.createElement("button");
+
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.title = "Remove restriction";
+
+        remove.addEventListener(
+          "click",
+          e => {
+
+            e.stopPropagation();
+
+            toggleRestriction(
+              id,
+              true
+            );
+
+            renderQuickSetup();
+            paint();
+
+          }
+        );
+
+        chip.appendChild(remove);
+        chips.appendChild(chip);
+
+      });
+
+    }
+
+    const modeButton =
+    $("v2QuickRestrictionMode");
+
+    modeButton.classList.toggle(
+      "active",
+      restrictionMode
+    );
+
+    modeButton.textContent =
+    restrictionMode
+    ? "Done Adding"
+    : "Add Restricted Lots";
+
+    $("v2QuickRestrictionHelp")
+    .innerHTML =
+    restrictionMode
+    ? "<b>Restriction selection is ON.</b> Click other homesites on the map to add or remove them. Click Done Adding when finished."
+    : 'Click <b>Add Restricted Lots</b>, then click the homesites on the map that cannot repeat this lot.';
+
+  }
+
+
   function renderRestrictions(){
 
     const holder =
@@ -4749,10 +5058,13 @@ function labelHTML(id, d) {
     persist();
 
     renderRestrictions();
+    renderQuickSetup();
 
     checkConflicts(
       false
     );
+
+    paint();
 
   }
 
@@ -5059,6 +5371,11 @@ function labelHTML(id, d) {
     selected =
     id;
 
+    // A newly selected homesite starts in normal setup mode.
+    // Restriction targeting only begins after Add Restricted Lots is clicked.
+    restrictionMode =
+    false;
+
 
     // Remember the shared version present when this homesite was opened.
     // The form itself is never auto-replaced during the pre-save check.
@@ -5101,6 +5418,7 @@ function labelHTML(id, d) {
 
 
     renderRestrictions();
+    renderQuickSetup();
 
 
     renderLockState();
@@ -5617,6 +5935,9 @@ function labelHTML(id, d) {
 
   function deselectPlot(){
 
+    const keepEditMode =
+    restrictionEditUnlocked;
+
     selected = null;
 
     // Clear the ORIGINAL prototype's selected lot too.
@@ -5632,12 +5953,22 @@ function labelHTML(id, d) {
     unlockedForEdit = null;
     homeEditingFor = null;
     restrictionMode = false;
-    restrictionEditUnlocked = false;
+    restrictionEditUnlocked = keepEditMode;
     restrictionBase = null;
 
     if($("v2RestrictionMode")){
-      $("v2RestrictionMode").classList.remove("active");
-      $("v2RestrictionMode").textContent = "Edit";
+
+      $("v2RestrictionMode")
+      .classList.toggle(
+        "active",
+        keepEditMode
+      );
+
+      $("v2RestrictionMode").textContent =
+      keepEditMode
+      ? "Done Editing"
+      : "Edit";
+
     }
 
     if($("v2RestrictionAdminControls")){
@@ -5647,6 +5978,8 @@ function labelHTML(id, d) {
     if($("v2RestrictionsSection")){
       $("v2RestrictionsSection").style.display = "none";
     }
+
+    renderQuickSetup();
 
     if($("v2RestrictionHelp")){
       $("v2RestrictionHelp").innerHTML =
@@ -6614,16 +6947,323 @@ function labelHTML(id, d) {
   );
 
 
+  $("v2QuickRestrictionMode")
+  .addEventListener(
+    "click",
+    () => {
+
+      if(
+        !restrictionEditUnlocked ||
+        !selected
+      ){
+        return;
+      }
+
+      restrictionMode =
+      !restrictionMode;
+
+      if(
+        $("v2QuickTwoWay") &&
+        $("v2TwoWay")
+      ){
+        $("v2TwoWay").checked =
+        $("v2QuickTwoWay").checked;
+      }
+
+      renderQuickSetup();
+      paint();
+
+    }
+  );
+
+
+  $("v2QuickTwoWay")
+  .addEventListener(
+    "change",
+    () => {
+
+      if($("v2TwoWay")){
+        $("v2TwoWay").checked =
+        $("v2QuickTwoWay").checked;
+      }
+
+    }
+  );
+
+
+  $("v2SaveSetup")
+  .addEventListener(
+    "click",
+    () => {
+
+      if(
+        !restrictionEditUnlocked ||
+        !selected
+      ){
+        return;
+      }
+
+      const meta =
+      metaFor(selected);
+
+      meta.lotOverride =
+      ($("v2EditLot").value || "").trim();
+
+      meta.blockOverride =
+      ($("v2EditBlock").value || "").trim();
+
+      restrictionMode =
+      false;
+
+      persist();
+      updateLabels();
+
+      $("v2PlotTitle").textContent =
+      plotName(selected);
+
+      renderRestrictions();
+      renderQuickSetup();
+      paint();
+
+      const button =
+      $("v2SaveSetup");
+
+      button.textContent =
+      "Saved ✓";
+
+      setTimeout(
+        () => {
+          if(restrictionEditUnlocked){
+            button.textContent =
+            "Save Setup";
+          }
+        },
+        700
+      );
+
+      // Stay in Edit mode so another homesite can be clicked immediately.
+    }
+  );
+
+
+  /* =========================================================
+     MOVABLE HOMESITE DETAILS PANEL
+     ========================================================= */
+
+  (function initDraggablePanel(){
+
+    const handle =
+    $("v2DragHandle");
+
+    if(
+      !aside ||
+      !handle
+    ){
+      return;
+    }
+
+    let dragging = false;
+    let pointerId = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function clampPosition(left, top){
+
+      const pad = 8;
+
+      const maxLeft =
+      Math.max(
+        pad,
+        window.innerWidth -
+        aside.offsetWidth -
+        pad
+      );
+
+      // Keep the drag bar reachable even if the panel is taller than the screen.
+      const maxTop =
+      Math.max(
+        pad,
+        window.innerHeight -
+        Math.min(80, aside.offsetHeight) -
+        pad
+      );
+
+      return {
+        left:
+        Math.min(
+          Math.max(pad, left),
+          maxLeft
+        ),
+
+        top:
+        Math.min(
+          Math.max(pad, top),
+          maxTop
+        )
+      };
+
+    }
+
+    handle.addEventListener(
+      "pointerdown",
+      e => {
+
+        if(
+          e.pointerType === "mouse" &&
+          e.button !== 0
+        ){
+          return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const rect =
+        aside.getBoundingClientRect();
+
+        dragging = true;
+        pointerId = e.pointerId;
+
+        offsetX =
+        e.clientX - rect.left;
+
+        offsetY =
+        e.clientY - rect.top;
+
+        aside.style.setProperty(
+          "position",
+          "fixed",
+          "important"
+        );
+
+        aside.style.setProperty(
+          "left",
+          rect.left + "px",
+          "important"
+        );
+
+        aside.style.setProperty(
+          "top",
+          rect.top + "px",
+          "important"
+        );
+
+        aside.style.setProperty(
+          "right",
+          "auto",
+          "important"
+        );
+
+        aside.style.setProperty(
+          "bottom",
+          "auto",
+          "important"
+        );
+
+        aside.style.setProperty(
+          "z-index",
+          "200",
+          "important"
+        );
+
+        aside.classList.add(
+          "v2-dragging"
+        );
+
+        try{
+          handle.setPointerCapture(
+            e.pointerId
+          );
+        }
+        catch(_){}
+
+      }
+    );
+
+    handle.addEventListener(
+      "pointermove",
+      e => {
+
+        if(
+          !dragging ||
+          e.pointerId !== pointerId
+        ){
+          return;
+        }
+
+        e.preventDefault();
+
+        const next =
+        clampPosition(
+          e.clientX - offsetX,
+          e.clientY - offsetY
+        );
+
+        aside.style.setProperty(
+          "left",
+          next.left + "px",
+          "important"
+        );
+
+        aside.style.setProperty(
+          "top",
+          next.top + "px",
+          "important"
+        );
+
+      }
+    );
+
+    function finishDrag(e){
+
+      if(!dragging){
+        return;
+      }
+
+      if(
+        e &&
+        e.pointerId !== undefined &&
+        pointerId !== null &&
+        e.pointerId !== pointerId
+      ){
+        return;
+      }
+
+      dragging = false;
+      aside.classList.remove("v2-dragging");
+
+      try{
+        if(
+          pointerId !== null &&
+          handle.hasPointerCapture(pointerId)
+        ){
+          handle.releasePointerCapture(pointerId);
+        }
+      }
+      catch(_){}
+
+      pointerId = null;
+
+    }
+
+    handle.addEventListener("pointerup", finishDrag);
+    handle.addEventListener("pointercancel", finishDrag);
+    handle.addEventListener("lostpointercapture", finishDrag);
+
+  })();
+
+
   $("v2RestrictionMode")
   .addEventListener(
-
     "click",
-
     () => {
 
       if(
         restrictionEditUnlocked
       ){
+
+        // Final save of setup changes, then leave Edit mode.
+        persist();
 
         restrictionEditUnlocked =
         false;
@@ -6644,7 +7284,6 @@ function labelHTML(id, d) {
         .style.display =
         "none";
 
-
         $("v2RestrictionsSection")
         .style.display =
         "none";
@@ -6657,22 +7296,9 @@ function labelHTML(id, d) {
         .style.display =
         "none";
 
+        renderQuickSetup();
         renderRestrictions();
-
         paint();
-
-        return;
-
-      }
-
-
-      if(
-        !selected
-      ){
-
-        alert(
-          "Click a homesite first, then click Edit."
-        );
 
         return;
 
@@ -6681,7 +7307,7 @@ function labelHTML(id, d) {
 
       const entered =
       prompt(
-        "Enter the password to edit Manual Restrictions:"
+        "Enter the password to edit Lot / Block assignments and Manual Restrictions:"
       );
 
 
@@ -6708,16 +7334,14 @@ function labelHTML(id, d) {
       }
 
 
+      // Edit mode can be opened BEFORE a homesite is selected.
       restrictionEditUnlocked =
       true;
 
+      // Normal map clicks select homesites.
+      // Restriction clicks only happen after Add Restricted Lots is pressed.
       restrictionMode =
-      true;
-
-
-      $("v2RestrictionsSection")
-      .style.display =
-      "block";
+      false;
 
 
       $("v2RestrictionMode")
@@ -6731,23 +7355,23 @@ function labelHTML(id, d) {
       "Done Editing";
 
 
+      // The old lower restriction admin remains hidden.
+      // The compact setup controls appear at the top of the floating panel.
       $("v2RestrictionAdminControls")
       .style.display =
-      "block";
+      "none";
 
-
-      $("v2RestrictionHelp")
-      .innerHTML =
-      "<b>Edit mode is unlocked.</b> Click homesites on the map to add or remove Manual Restrictions.";
-
+      $("v2RestrictionsSection")
+      .style.display =
+      "none";
 
       $("v2ModeNote")
       .style.display =
-      "block";
+      "none";
 
 
+      renderQuickSetup();
       renderRestrictions();
-
       paint();
 
     }
