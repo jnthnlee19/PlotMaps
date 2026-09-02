@@ -7811,41 +7811,70 @@ function labelHTML(id, d) {
 
     const fixed = SCHEME_FIXED_COLORS[d.scheme] || {};
     const type = exteriorTypeFromData(d);
+    const isBrick = type === "brick";
 
     const missing = [];
     if(!d.door) missing.push("Entry Door");
     if(!d.garage) missing.push("Garage Door");
     if(!d.shutters) missing.push("Shutters");
-    if(type === "brick" && !d.brick) missing.push("Brick / Stone");
+    if(isBrick && !d.brick) missing.push("Brick / Stone");
+
     if(missing.length){
       alert("Choose the following before generating the PDF: " + missing.join(", ") + ".");
       return;
     }
 
-    const cards = [];
-    cards.push(pdfColorCard("Primary Siding", fixed.primary || d.primaryColor || ""));
+    /* =========================================================
+       PLAN / ELEVATION IMAGE FILE
+       =========================================================
+       Save the annotated elevation image in GitHub using:
+         assets/elevations/PLAN-ELEVATION.jpg
 
-    if(type === "all-siding"){
-      cards.push(pdfColorCard("Secondary Siding", fixed.secondary || d.secondaryColor || ""));
-    }
+       Examples:
+         assets/elevations/1676-X.jpg
+         assets/elevations/2382-B.jpg
+         assets/elevations/2881-V.jpg
 
-    cards.push(pdfColorCard("Fascia", fixed.fascia || d.fasciaColor || ""));
-    cards.push(pdfColorCard("Trim / Soffits / Columns", fixed.trim || d.trimColor || ""));
-    cards.push(pdfColorCard("Shutters", d.shutters || ""));
-    cards.push(pdfColorCard("Garage Door", d.garage || ""));
-    cards.push(pdfColorCard("Entry Door", d.door || ""));
-
-    let brickName = "";
-    let brickImage = "";
-    if(type === "brick" && d.brick){
-      const option = Array.from($("v2Brick").options).find(o => o.value === d.brick);
-      brickName = option ? option.textContent : d.brick;
-      brickImage = BRICK_IMAGE_PATHS[d.brick] || "";
-    }
+       IMPORTANT:
+       Put the arrows and labels directly on the image itself.
+       The PDF will place that image in the Exterior Application Guide.
+       ========================================================= */
+    const elevationImage =
+      "assets/elevations/" +
+      encodeURIComponent(String(d.plan || "").trim()) +
+      "-" +
+      encodeURIComponent(String(d.elevation || "").trim().toUpperCase()) +
+      ".jpg";
 
     const lotBlock = assigned.lot
       ? "Lot " + assigned.lot + (assigned.tract ? " / Block " + assigned.tract : "")
       : selected;
+
+    const option = isBrick && d.brick
+      ? Array.from($("v2Brick").options).find(o => o.value === d.brick)
+      : null;
+
+    const brickName = option ? option.textContent : (isBrick ? (d.brick || "") : "");
+    const brickImage = isBrick && d.brick ? (BRICK_IMAGE_PATHS[d.brick] || "") : "";
+
+    function card(label, value){
+      return pdfColorCard(label, value || "");
+    }
+
+    const colorCards = [];
+
+    // Brick homes have PRIMARY SIDING ONLY. No secondary siding card.
+    colorCards.push(card("Primary Siding", fixed.primary || d.primaryColor || ""));
+
+    if(!isBrick){
+      colorCards.push(card("Secondary Siding", fixed.secondary || d.secondaryColor || ""));
+    }
+
+    colorCards.push(card("Trim / Soffit / Columns", fixed.trim || d.trimColor || ""));
+    colorCards.push(card("Fascia", fixed.fascia || d.fasciaColor || ""));
+    colorCards.push(card("Shutters", d.shutters || ""));
+    colorCards.push(card("Front Door", d.door || ""));
+    colorCards.push(card("Garage", d.garage || ""));
 
     const printWindow = window.open("", "_blank");
     if(!printWindow){
@@ -7858,105 +7887,210 @@ function labelHTML(id, d) {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>${esc(lotBlock)} - Scheme ${esc(d.scheme || "")}</title>
+<title>${esc(lotBlock)} - Adelton Exterior Selection Sheet</title>
 <style>
-  @page{size:letter portrait;margin:.32in}
+  @page{size:letter portrait;margin:.28in}
   *{box-sizing:border-box}
   html,body{
-    margin:0;padding:0;background:#f7f4ef;color:#242424;
+    margin:0;padding:0;background:#fff;color:#172033;
     font-family:Arial,Helvetica,sans-serif;
-    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
   }
-  body{padding:28px 30px 22px}
-  .pdf-header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:18px}
-  .pdf-title{font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;letter-spacing:.03em}
-  .pdf-subtitle{margin-top:4px;font-size:8px;font-weight:700;letter-spacing:.14em;color:#7b756f;text-transform:uppercase}
-  .pdf-community{padding:8px 13px;border-radius:999px;background:#e9e4dc;color:#403c37;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
-  .pdf-home-info{display:grid;grid-template-columns:2fr 1.15fr .65fr .75fr;gap:0;background:#fff;border:1px solid #e1dbd4;border-radius:14px;overflow:hidden;margin-bottom:16px}
-  .pdf-info-cell{min-height:64px;padding:13px 15px 11px;border-right:1px solid #e9e3dc}
-  .pdf-info-cell:last-child{border-right:0}
-  .pdf-info-label{font-size:7px;font-weight:800;color:#8a837b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
-  .pdf-info-value{font-size:12px;line-height:1.25;font-weight:800;color:#242424}
-  .pdf-info-value.large{font-size:14px}
-  .pdf-masonry{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-bottom:16px}
-  .pdf-masonry-image{height:142px;border:1px solid #ded7cf;border-radius:13px;overflow:hidden;background:#e7e2db;display:flex;align-items:center;justify-content:center;color:#847d75;font-size:8px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
-  .pdf-masonry-image img{width:100%;height:100%;object-fit:cover;display:block}
-  .pdf-masonry-info{border:1px solid #ded7cf;border-radius:13px;background:#fff;padding:16px;display:flex;flex-direction:column;justify-content:center}
-  .pdf-masonry-kicker{font-size:7px;font-weight:900;color:#8a837b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
-  .pdf-masonry-name{font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;line-height:1.15}
-  .pdf-masonry-note{margin-top:8px;color:#77716a;font-size:7px;line-height:1.35}
-  .pdf-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 1px 9px}
-  .pdf-section-title{font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
-  .pdf-section-note{font-size:7px;color:#817b74}
-  .pdf-color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .pdf-color-card{position:relative;height:${type === "brick" ? "93px" : "116px"};border:1px solid rgba(80,74,68,.16);border-radius:13px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-  .pdf-color-overlay{position:absolute;left:8px;right:8px;bottom:8px;padding:7px 10px 8px;border-radius:9px;background:rgba(255,255,255,.82);box-shadow:0 1px 4px rgba(0,0,0,.08)}
-  .pdf-color-label{font-size:6.5px;line-height:1.15;font-weight:900;letter-spacing:.045em;text-transform:uppercase;color:#6f6962;margin-bottom:3px}
-  .pdf-color-name{font-size:10.5px;line-height:1.15;font-weight:900;color:#1f1f1f}
-  .pdf-color-code{margin-top:2px;font-size:7px;color:#5f5a55}
-  .pdf-footer{margin-top:12px;padding-top:8px;border-top:1px solid #ddd6ce;display:flex;justify-content:space-between;gap:18px;align-items:flex-end;color:#77716a;font-size:6.5px;line-height:1.4}
-  .pdf-disclaimer{max-width:420px}.pdf-record{font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
-  @media print{body{padding:0}.pdf-color-card{box-shadow:none}}
+  body{padding:22px 24px 18px}
+  .top{
+    display:grid;
+    grid-template-columns:1.12fr .88fr;
+    gap:26px;
+    align-items:start;
+  }
+  .brand-rule{height:5px;background:#b21f2d;margin-bottom:10px}
+  .eyebrow{
+    font-size:8px;font-weight:900;letter-spacing:.16em;
+    text-transform:uppercase;color:#a51f2d;margin-bottom:7px
+  }
+  .plan{
+    margin:0;font-size:31px;line-height:1;font-weight:900;
+    letter-spacing:-.03em;color:#172033
+  }
+  .elevation{
+    margin-top:5px;font-size:15px;font-weight:800;color:#273145
+  }
+  .note{
+    margin-top:8px;max-width:420px;font-size:6.8px;line-height:1.35;color:#596273
+  }
+
+  .info{
+    display:grid;grid-template-columns:1fr 1fr;
+    border:1px solid #cfd6df;border-radius:8px;overflow:hidden
+  }
+  .info-cell{padding:9px 11px;min-height:52px}
+  .info-cell:nth-child(odd){border-right:1px solid #cfd6df}
+  .info-cell:nth-child(-n+2){border-bottom:1px solid #cfd6df}
+  .info-label{
+    font-size:6.4px;font-weight:900;letter-spacing:.12em;
+    text-transform:uppercase;color:#667085;margin-bottom:4px
+  }
+  .info-value{font-size:10px;font-weight:900;color:#172033}
+
+  .section-title{
+    display:flex;align-items:center;gap:10px;
+    margin:13px 0 7px;
+    font-size:10px;font-weight:900;color:#172033
+  }
+  .section-title::after{
+    content:"";height:1px;background:#cfd6df;flex:1
+  }
+
+  .guide{
+    border:1px solid #cfd6df;border-radius:8px;
+    overflow:hidden;background:#f4f6f8
+  }
+  .guide img{
+    width:100%;height:290px;object-fit:contain;display:block;background:#fff
+  }
+  .missing-image{
+    height:290px;display:flex;align-items:center;justify-content:center;
+    padding:24px;text-align:center;color:#6b7280;background:#f5f6f7;
+    font-size:9px;font-weight:800
+  }
+
+  .colors{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    border:1px solid #cfd6df;
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .pdf-color-card{
+    position:relative;
+    min-height:102px;
+    border-right:1px solid #cfd6df;
+    border-bottom:1px solid #cfd6df;
+    overflow:hidden;
+  }
+  .pdf-color-card:nth-child(4n){border-right:0}
+  .pdf-color-overlay{
+    position:absolute;left:7px;right:7px;bottom:7px;
+    padding:6px 7px;border-radius:6px;
+    background:rgba(255,255,255,.86);
+  }
+  .pdf-color-label{
+    font-size:6px;font-weight:900;letter-spacing:.08em;
+    text-transform:uppercase;color:#667085;margin-bottom:3px
+  }
+  .pdf-color-name{
+    font-size:9px;line-height:1.12;font-weight:900;color:#172033
+  }
+  .pdf-color-code{margin-top:2px;font-size:6.3px;color:#475467}
+
+  .masonry{
+    display:grid;grid-template-columns:1fr;
+    border:1px solid #cfd6df;border-radius:8px;overflow:hidden;background:#fff
+  }
+  .masonry-head{padding:8px 10px;border-bottom:1px solid #d9dee6}
+  .masonry-label{
+    font-size:6.3px;font-weight:900;letter-spacing:.1em;
+    text-transform:uppercase;color:#667085
+  }
+  .masonry-name{
+    margin-top:3px;font-size:12px;font-weight:900;color:#172033
+  }
+  .masonry-image{
+    height:118px;background:#f3f4f6;display:flex;
+    align-items:center;justify-content:center;color:#667085;
+    font-size:8px;font-weight:800
+  }
+  .masonry-image img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .footer{
+    margin-top:9px;padding-top:7px;border-top:1px solid #d9dee6;
+    display:flex;justify-content:space-between;gap:15px;
+    font-size:6px;line-height:1.35;color:#667085
+  }
+
+  @media print{
+    body{padding:0}
+  }
 </style>
 </head>
 <body>
-  <div class="pdf-header">
+
+  <div class="top">
     <div>
-      <div class="pdf-title">Exterior Color Selections</div>
-      <div class="pdf-subtitle">Approved Exterior Palette</div>
-    </div>
-    <div class="pdf-community">Adelton</div>
-  </div>
-
-  <div class="pdf-home-info">
-    <div class="pdf-info-cell">
-      <div class="pdf-info-label">Address</div>
-      <div class="pdf-info-value">${esc(d.address || "—")}</div>
-    </div>
-    <div class="pdf-info-cell">
-      <div class="pdf-info-label">Lot / Block</div>
-      <div class="pdf-info-value">${esc(lotBlock)}</div>
-    </div>
-    <div class="pdf-info-cell">
-      <div class="pdf-info-label">Plan</div>
-      <div class="pdf-info-value large">${esc(d.plan || "—")}</div>
-    </div>
-    <div class="pdf-info-cell">
-      <div class="pdf-info-label">Elevation</div>
-      <div class="pdf-info-value large">${esc(d.elevation || "—")}</div>
-    </div>
-  </div>
-
-  ${brickName ? `
-    <div class="pdf-masonry">
-      <div class="pdf-masonry-image">
-        ${brickImage ? `<img src="${esc(brickImage)}" alt="${esc(brickName)}"
-          onerror="this.style.display='none';this.parentNode.innerHTML='Masonry image not added yet';">`
-          : `Masonry image not added yet`}
+      <div class="brand-rule"></div>
+      <div class="eyebrow">Adelton · Exterior Selection Sheet</div>
+      <h1 class="plan">Plan ${esc(d.plan || "—")}</h1>
+      <div class="elevation">
+        Elevation ${esc(d.elevation || "—")} · ${isBrick ? "With Brick / Stone" : "All Siding"}
       </div>
-      <div class="pdf-masonry-info">
-        <div class="pdf-masonry-kicker">Brick / Stone Selection</div>
-        <div class="pdf-masonry-name">${esc(brickName)}</div>
-        <div class="pdf-masonry-note">Masonry image shown for reference. Confirm the approved physical sample for final selection.</div>
+      <div class="note">
+        Rendering is for reference only. Final installed colors and materials should be verified against approved selections and physical samples.
       </div>
-    </div>` : ""}
+    </div>
 
-  <div class="pdf-section-head">
-    <div class="pdf-section-title">Selected Colors · Scheme ${esc(d.scheme || "")}</div>
-    <div class="pdf-section-note">Color blocks are representative only.</div>
+    <div class="info">
+      <div class="info-cell">
+        <div class="info-label">Homesite</div>
+        <div class="info-value">${esc(lotBlock)}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Address</div>
+        <div class="info-value">${esc(d.address || "—")}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Scheme</div>
+        <div class="info-value">Scheme ${esc(d.scheme || "—")}</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Exterior Type</div>
+        <div class="info-value">${isBrick ? "Brick / Stone" : "All Siding"}</div>
+      </div>
+    </div>
   </div>
 
-  <div class="pdf-color-grid">${cards.join("")}</div>
+  <div class="section-title">Exterior Application Guide</div>
+  <div class="guide">
+    <img
+      src="${elevationImage}"
+      alt="Plan ${esc(d.plan || "")} Elevation ${esc(d.elevation || "")}"
+      onerror="
+        this.style.display='none';
+        this.parentNode.innerHTML='<div class=&quot;missing-image&quot;>Elevation image not added yet.<br><br>Expected file:<br>${elevationImage}</div>';
+      "
+    >
+  </div>
 
-  <div class="pdf-footer">
-    <div class="pdf-disclaimer">
-      Screen and printed colors are representative only and may vary from approved physical samples. The written color names and codes shown on this sheet are the approved selections and should be used for final exterior color reference.
+  <div class="section-title">Exterior Color Selections</div>
+  <div class="colors">
+    ${colorCards.join("")}
+  </div>
+
+  ${isBrick ? `
+    <div class="section-title">Masonry Selection</div>
+    <div class="masonry">
+      <div class="masonry-head">
+        <div class="masonry-label">Selected Brick / Stone</div>
+        <div class="masonry-name">${esc(brickName || "—")}</div>
+      </div>
+      <div class="masonry-image">
+        ${brickImage
+          ? `<img src="${esc(brickImage)}" alt="${esc(brickName)}"
+              onerror="this.style.display='none';this.parentNode.innerHTML='Brick / stone image not added yet';">`
+          : `Brick / stone image not added yet`}
+      </div>
     </div>
-    <div class="pdf-record">Exterior Color Record</div>
+  ` : ""}
+
+  <div class="footer">
+    <div>
+      Colors shown are for reference only and may vary based on lighting, screen settings, photography, material type, and natural variation. Confirm final colors and masonry selections with approved physical samples/materials.
+    </div>
+    <div>Adelton Exterior Color Record</div>
   </div>
 
   <script>
-    window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
+    window.addEventListener('load',()=>setTimeout(()=>window.print(),650));
   <\/script>
 </body>
 </html>`);
