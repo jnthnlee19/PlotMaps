@@ -153,6 +153,98 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
   }
 }
 
+
+/* =========================================================
+   SELECTED HOMESITE SUMMARY BAR + SCHEME PDF
+   ========================================================= */
+.v2-top-summary{
+  display:none;
+  align-items:stretch;
+  gap:0;
+  padding:0 22px;
+  min-height:68px;
+  background:#fff;
+  border-bottom:1px solid #dfe3e6;
+  box-shadow:0 2px 10px rgba(31,41,55,.04);
+  position:relative;
+  z-index:15;
+}
+.v2-top-summary.show{display:flex}
+.v2-top-stat{
+  min-width:126px;
+  padding:13px 24px 12px 0;
+  margin-right:24px;
+  border-right:1px solid #dfe3e6;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.v2-top-stat.wide{min-width:185px}
+.v2-top-label{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+  color:#6b7280;
+  margin-bottom:4px;
+}
+.v2-top-value{
+  font-size:14px;
+  font-weight:800;
+  color:#20242a;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:210px;
+}
+.v2-top-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.v2-top-status-dot{
+  width:9px;height:9px;border-radius:50%;
+  background:#a3a3a3;flex:none;
+}
+.v2-top-status-dot.pending{background:#2563eb}
+.v2-top-status-dot.complete{background:#15803d}
+.v2-top-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:10px 0;
+}
+.v2-pdf-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  min-height:42px;
+  padding:10px 15px;
+  border:1px solid #bfc5ca;
+  border-radius:8px;
+  background:#fff;
+  color:#20242a;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+  cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.v2-pdf-btn:hover:not(:disabled){background:#f8f7f4;border-color:#8f979e}
+.v2-pdf-btn:disabled{opacity:.42;cursor:not-allowed}
+.v2-pdf-icon{
+  width:20px;height:20px;display:grid;place-items:center;
+  border:1px solid currentColor;border-radius:4px;
+  font-size:11px;line-height:1;
+}
+@media(max-width:1050px){
+  .v2-top-summary{overflow-x:auto;padding-right:14px}
+  .v2-top-stat{min-width:120px;margin-right:16px;padding-right:16px}
+  .v2-top-actions{padding-right:4px}
+}
+
 </style>
 </head>
 <body>
@@ -166,6 +258,47 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
     Edit
   </button>
 </header>
+
+<!-- =========================================================
+     SELECTED HOMESITE SUMMARY BAR
+     ========================================================= -->
+<div class="v2-top-summary" id="v2TopSummary">
+  <div class="v2-top-stat wide">
+    <span class="v2-top-label">Homesite</span>
+    <span class="v2-top-value" id="v2TopHomesite">—</span>
+  </div>
+
+  <div class="v2-top-stat wide">
+    <span class="v2-top-label">Address</span>
+    <span class="v2-top-value" id="v2TopAddress">—</span>
+  </div>
+
+  <div class="v2-top-stat">
+    <span class="v2-top-label">Plan / Elevation</span>
+    <span class="v2-top-value" id="v2TopPlanElevation">—</span>
+  </div>
+
+  <div class="v2-top-stat">
+    <span class="v2-top-label">Scheme</span>
+    <span class="v2-top-value" id="v2TopScheme">—</span>
+  </div>
+
+  <div class="v2-top-stat">
+    <span class="v2-top-label">Status</span>
+    <span class="v2-top-value v2-top-status">
+      <span class="v2-top-status-dot" id="v2TopStatusDot"></span>
+      <span id="v2TopStatus">Not Saved</span>
+    </span>
+  </div>
+
+  <div class="v2-top-actions">
+    <button type="button" class="v2-pdf-btn" id="v2GenerateSchemePdf">
+      <span class="v2-pdf-icon">▣</span>
+      Generate Scheme PDF
+    </button>
+  </div>
+</div>
+
 
 <div class="wrap">
   <section class="card mapwrap">
@@ -7429,6 +7562,326 @@ function labelHTML(id, d) {
     )
 
   );
+
+
+
+  /* =========================================================
+     TOP SUMMARY BAR + PRINT-TO-PDF SCHEME SHEET
+     ========================================================= */
+
+  function updateTopSummary(){
+    const bar = $("v2TopSummary");
+    if(!bar) return;
+
+    if(!selected){
+      bar.classList.remove("show");
+      return;
+    }
+
+    bar.classList.add("show");
+
+    const d = state.data[selected] || {};
+    const assigned = lotBlockFor(selected);
+    const m = metaFor(selected);
+
+    $("v2TopHomesite").textContent =
+      assigned.lot
+        ? "Lot " + assigned.lot + (assigned.tract ? " / Block " + assigned.tract : "")
+        : selected;
+
+    $("v2TopAddress").textContent = d.address || "—";
+    $("v2TopPlanElevation").textContent =
+      [d.plan, d.elevation].filter(Boolean).join(" / ") || "—";
+    $("v2TopScheme").textContent =
+      d.scheme ? "Scheme " + d.scheme : "—";
+
+    const status = $("v2TopStatus");
+    const dot = $("v2TopStatusDot");
+    const pdfButton = $("v2GenerateSchemePdf");
+
+    dot.className = "v2-top-status-dot";
+
+    if(m.exteriorSaved){
+      status.textContent = "Complete";
+      dot.classList.add("complete");
+    } else if(m.homeSaved){
+      status.textContent = "Exterior Pending";
+      dot.classList.add("pending");
+    } else {
+      status.textContent = "Not Saved";
+    }
+
+    // Keep clickable so an unfinished homesite gives a useful message.
+    pdfButton.disabled = !selected;
+  }
+
+
+  /* ---------------------------------------------------------
+     BRICK / STONE IMAGE FILES
+
+     Save the actual masonry photos in your GitHub repo at:
+       /assets/masonry/
+
+     These filenames are intentionally simple and predictable.
+     JPG or PNG is fine, but keep these exact names unless you
+     also change the matching path below.
+     --------------------------------------------------------- */
+  const BRICK_IMAGE_PATHS = {
+    "Brick 1":"assets/masonry/brick-01-adobe-wells.jpg",
+    "Brick 2":"assets/masonry/brick-02-sonoran-desert.jpg",
+    "Brick 3":"assets/masonry/brick-03-stone-bay.jpg",
+    "Brick 4":"assets/masonry/brick-04-grey-fog.jpg",
+    "Brick 5":"assets/masonry/brick-05-cibolo-trail.jpg",
+    "Brick 6":"assets/masonry/brick-06-mocha-brown-antique.jpg",
+    "Brick 7":"assets/masonry/brick-07-old-fancisco.jpg",
+    "Brick 8":"assets/masonry/brick-08-white-birch.jpg",
+    "Brick 9":"assets/masonry/brick-09-cottonwood.jpg",
+    "Brick 10":"assets/masonry/brick-10-frostwood.jpg",
+    "Brick 11":"assets/masonry/brick-11-cream-stone.jpg",
+    "Brick 12":"assets/masonry/brick-12-texas-mix.jpg",
+    "Brick 13":"assets/masonry/brick-13-smokey-mountain.jpg"
+  };
+
+
+  /* Screen/PDF swatches are representative only. */
+  const PDF_COLOR_HEX = {
+    "SW 7006 Extra White":"#EEEDE7",
+    "SW 6258 Tricorn Black":"#2F2F30",
+    "SW 9140 Blustery Sky":"#6F8793",
+    "SW 7615 Sea Serpent":"#3E4B50",
+    "SW 6866 Heartthrob":"#AD3938",
+    "SW 7008 Alabaster":"#EDEAE0",
+    "SW 7023 Requisite Gray":"#B9B2A9",
+    "SW 7019 Gauntlet Gray":"#78736E",
+    "SW 7037 Balanced Beige":"#C1B2A0",
+    "SW 7622 Homburg Gray":"#666B64",
+    "SW 7022 Natural Choice":"#E3DED0",
+    "SW 7020 Black Fox":"#4F4842",
+    "SW 9130 Evergreen Fog":"#95978A",
+    "SW 7036 Accessible Beige":"#D1C7B8",
+    "SW 7042 Shoji White":"#E6DFD3",
+    "SW 7069 Iron Ore":"#434341",
+    "SW 7674 Peppercorn":"#585858",
+    "SW Light French Gray":"#C2C0BB",
+    "SW 9166 Drift of Mist":"#DCD8D0",
+    "SW 7005 Pure White":"#EDECE6",
+    "SW 6208 Pewter Green":"#5E6259",
+    "SW Red Barn 7591":"#7C453D",
+    "SW 6244 Naval":"#2F3D4C",
+    "SW 6209 Ripe Olive":"#44483D",
+    "SW 7048 Urbane Bronze":"#54504A",
+    "SW 7048 Urban Bronze":"#54504A",
+    "SW 7600 Bolero":"#903934",
+    "SW 6237 Dark Night":"#23383E",
+    "SW 6188 Shade-Grown":"#4C5147",
+    "SW Turkish Coffee":"#4A382B"
+  };
+
+  function pdfSwatchHex(color){
+    return PDF_COLOR_HEX[color] || "#D7D5D0";
+  }
+
+  function splitSwColor(value){
+    const raw = String(value || "").trim();
+    let m = raw.match(/^SW\s+(\d+)\s+(.+)$/i);
+    if(m) return {name:m[2], code:"SW " + m[1]};
+    m = raw.match(/^SW\s+(.+?)\s+(\d+)$/i);
+    if(m) return {name:m[1], code:"SW " + m[2]};
+    if(/^SW\s+/i.test(raw)) return {name:raw.replace(/^SW\s+/i, ""), code:"SW"};
+    return {name:raw || "—", code:""};
+  }
+
+  function pdfColorCard(label, value){
+    const parsed = splitSwColor(value);
+    const hex = pdfSwatchHex(value);
+    return `
+      <div class="pdf-color-card" style="background:${hex}">
+        <div class="pdf-color-overlay">
+          <div class="pdf-color-label">${esc(label)}</div>
+          <div class="pdf-color-name">${esc(parsed.name)}</div>
+          <div class="pdf-color-code">${esc(parsed.code)}</div>
+        </div>
+      </div>`;
+  }
+
+  function generateSchemePdf(){
+    if(!selected){
+      alert("Select a homesite first.");
+      return;
+    }
+
+    const d = state.data[selected] || {};
+    const m = metaFor(selected);
+    const assigned = lotBlockFor(selected);
+
+    if(!m.exteriorSaved){
+      alert("Save the exterior selections before generating the PDF.");
+      return;
+    }
+
+    if(!d.scheme){
+      alert("Choose a scheme for this homesite before generating the PDF.");
+      return;
+    }
+
+    const fixed = SCHEME_FIXED_COLORS[d.scheme] || {};
+    const type = exteriorTypeFromData(d);
+
+    const missing = [];
+    if(!d.door) missing.push("Entry Door");
+    if(!d.garage) missing.push("Garage Door");
+    if(!d.shutters) missing.push("Shutters");
+    if(type === "brick" && !d.brick) missing.push("Brick / Stone");
+    if(missing.length){
+      alert("Choose the following before generating the PDF: " + missing.join(", ") + ".");
+      return;
+    }
+
+    const cards = [];
+    cards.push(pdfColorCard("Primary Siding", fixed.primary || d.primaryColor || ""));
+
+    if(type === "all-siding"){
+      cards.push(pdfColorCard("Secondary Siding", fixed.secondary || d.secondaryColor || ""));
+    }
+
+    cards.push(pdfColorCard("Fascia", fixed.fascia || d.fasciaColor || ""));
+    cards.push(pdfColorCard("Trim / Soffits / Columns", fixed.trim || d.trimColor || ""));
+    cards.push(pdfColorCard("Shutters", d.shutters || ""));
+    cards.push(pdfColorCard("Garage Door", d.garage || ""));
+    cards.push(pdfColorCard("Entry Door", d.door || ""));
+
+    let brickName = "";
+    let brickImage = "";
+    if(type === "brick" && d.brick){
+      const option = Array.from($("v2Brick").options).find(o => o.value === d.brick);
+      brickName = option ? option.textContent : d.brick;
+      brickImage = BRICK_IMAGE_PATHS[d.brick] || "";
+    }
+
+    const lotBlock = assigned.lot
+      ? "Lot " + assigned.lot + (assigned.tract ? " / Block " + assigned.tract : "")
+      : selected;
+
+    const printWindow = window.open("", "_blank");
+    if(!printWindow){
+      alert("Your browser blocked the PDF window. Allow pop-ups for this site and try again.");
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${esc(lotBlock)} - Scheme ${esc(d.scheme || "")}</title>
+<style>
+  @page{size:letter portrait;margin:.32in}
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;padding:0;background:#f7f4ef;color:#242424;
+    font-family:Arial,Helvetica,sans-serif;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  body{padding:28px 30px 22px}
+  .pdf-header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:18px}
+  .pdf-title{font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;letter-spacing:.03em}
+  .pdf-subtitle{margin-top:4px;font-size:8px;font-weight:700;letter-spacing:.14em;color:#7b756f;text-transform:uppercase}
+  .pdf-community{padding:8px 13px;border-radius:999px;background:#e9e4dc;color:#403c37;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+  .pdf-home-info{display:grid;grid-template-columns:2fr 1.15fr .65fr .75fr;gap:0;background:#fff;border:1px solid #e1dbd4;border-radius:14px;overflow:hidden;margin-bottom:16px}
+  .pdf-info-cell{min-height:64px;padding:13px 15px 11px;border-right:1px solid #e9e3dc}
+  .pdf-info-cell:last-child{border-right:0}
+  .pdf-info-label{font-size:7px;font-weight:800;color:#8a837b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+  .pdf-info-value{font-size:12px;line-height:1.25;font-weight:800;color:#242424}
+  .pdf-info-value.large{font-size:14px}
+  .pdf-masonry{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-bottom:16px}
+  .pdf-masonry-image{height:142px;border:1px solid #ded7cf;border-radius:13px;overflow:hidden;background:#e7e2db;display:flex;align-items:center;justify-content:center;color:#847d75;font-size:8px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+  .pdf-masonry-image img{width:100%;height:100%;object-fit:cover;display:block}
+  .pdf-masonry-info{border:1px solid #ded7cf;border-radius:13px;background:#fff;padding:16px;display:flex;flex-direction:column;justify-content:center}
+  .pdf-masonry-kicker{font-size:7px;font-weight:900;color:#8a837b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+  .pdf-masonry-name{font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;line-height:1.15}
+  .pdf-masonry-note{margin-top:8px;color:#77716a;font-size:7px;line-height:1.35}
+  .pdf-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 1px 9px}
+  .pdf-section-title{font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+  .pdf-section-note{font-size:7px;color:#817b74}
+  .pdf-color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pdf-color-card{position:relative;height:${type === "brick" ? "93px" : "116px"};border:1px solid rgba(80,74,68,.16);border-radius:13px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+  .pdf-color-overlay{position:absolute;left:8px;right:8px;bottom:8px;padding:7px 10px 8px;border-radius:9px;background:rgba(255,255,255,.82);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .pdf-color-label{font-size:6.5px;line-height:1.15;font-weight:900;letter-spacing:.045em;text-transform:uppercase;color:#6f6962;margin-bottom:3px}
+  .pdf-color-name{font-size:10.5px;line-height:1.15;font-weight:900;color:#1f1f1f}
+  .pdf-color-code{margin-top:2px;font-size:7px;color:#5f5a55}
+  .pdf-footer{margin-top:12px;padding-top:8px;border-top:1px solid #ddd6ce;display:flex;justify-content:space-between;gap:18px;align-items:flex-end;color:#77716a;font-size:6.5px;line-height:1.4}
+  .pdf-disclaimer{max-width:420px}.pdf-record{font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  @media print{body{padding:0}.pdf-color-card{box-shadow:none}}
+</style>
+</head>
+<body>
+  <div class="pdf-header">
+    <div>
+      <div class="pdf-title">Exterior Color Selections</div>
+      <div class="pdf-subtitle">Approved Exterior Palette</div>
+    </div>
+    <div class="pdf-community">Adelton</div>
+  </div>
+
+  <div class="pdf-home-info">
+    <div class="pdf-info-cell">
+      <div class="pdf-info-label">Address</div>
+      <div class="pdf-info-value">${esc(d.address || "—")}</div>
+    </div>
+    <div class="pdf-info-cell">
+      <div class="pdf-info-label">Lot / Block</div>
+      <div class="pdf-info-value">${esc(lotBlock)}</div>
+    </div>
+    <div class="pdf-info-cell">
+      <div class="pdf-info-label">Plan</div>
+      <div class="pdf-info-value large">${esc(d.plan || "—")}</div>
+    </div>
+    <div class="pdf-info-cell">
+      <div class="pdf-info-label">Elevation</div>
+      <div class="pdf-info-value large">${esc(d.elevation || "—")}</div>
+    </div>
+  </div>
+
+  ${brickName ? `
+    <div class="pdf-masonry">
+      <div class="pdf-masonry-image">
+        ${brickImage ? `<img src="${esc(brickImage)}" alt="${esc(brickName)}"
+          onerror="this.style.display='none';this.parentNode.innerHTML='Masonry image not added yet';">`
+          : `Masonry image not added yet`}
+      </div>
+      <div class="pdf-masonry-info">
+        <div class="pdf-masonry-kicker">Brick / Stone Selection</div>
+        <div class="pdf-masonry-name">${esc(brickName)}</div>
+        <div class="pdf-masonry-note">Masonry image shown for reference. Confirm the approved physical sample for final selection.</div>
+      </div>
+    </div>` : ""}
+
+  <div class="pdf-section-head">
+    <div class="pdf-section-title">Selected Colors · Scheme ${esc(d.scheme || "")}</div>
+    <div class="pdf-section-note">Color blocks are representative only.</div>
+  </div>
+
+  <div class="pdf-color-grid">${cards.join("")}</div>
+
+  <div class="pdf-footer">
+    <div class="pdf-disclaimer">
+      Screen and printed colors are representative only and may vary from approved physical samples. The written color names and codes shown on this sheet are the approved selections and should be used for final exterior color reference.
+    </div>
+    <div class="pdf-record">Exterior Color Record</div>
+  </div>
+
+  <script>
+    window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
+  <\/script>
+</body>
+</html>`);
+    printWindow.document.close();
+  }
+
+  $("v2GenerateSchemePdf").addEventListener("click", generateSchemePdf);
+
+  // Keep the top summary synced with selections, saves, unlocks, and edits.
+  setInterval(updateTopSummary, 250);
 
 
   /* =========================================================
