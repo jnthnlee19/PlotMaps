@@ -7627,19 +7627,19 @@ function labelHTML(id, d) {
      also change the matching path below.
      --------------------------------------------------------- */
   const BRICK_IMAGE_PATHS = {
-    "Brick 1":"assets/masonry/brick-01-adobe-wells.jpg",
-    "Brick 2":"assets/masonry/brick-02-sonoran-desert.jpg",
-    "Brick 3":"assets/masonry/brick-03-stone-bay.jpg",
-    "Brick 4":"assets/masonry/brick-04-grey-fog.jpg",
-    "Brick 5":"assets/masonry/brick-05-cibolo-trail.jpg",
-    "Brick 6":"assets/masonry/brick-06-mocha-brown-antique.jpg",
-    "Brick 7":"assets/masonry/brick-07-old-fancisco.jpg",
-    "Brick 8":"assets/masonry/brick-08-white-birch.jpg",
-    "Brick 9":"assets/masonry/brick-09-cottonwood.jpg",
-    "Brick 10":"assets/masonry/brick-10-frostwood.jpg",
-    "Brick 11":"assets/masonry/brick-11-cream-stone.jpg",
-    "Brick 12":"assets/masonry/brick-12-texas-mix.jpg",
-    "Brick 13":"assets/masonry/brick-13-smokey-mountain.jpg"
+    "Brick 1":"assets/masonry/brick-01-adobe-wells.png",
+    "Brick 2":"assets/masonry/brick-02-sonoran-desert.png",
+    "Brick 3":"assets/masonry/brick-03-stone-bay.png",
+    "Brick 4":"assets/masonry/brick-04-grey-fog.png",
+    "Brick 5":"assets/masonry/brick-05-cibolo-trail.png",
+    "Brick 6":"assets/masonry/brick-06-mocha-brown-antique.png",
+    "Brick 7":"assets/masonry/brick-07-old-fancisco.png",
+    "Brick 8":"assets/masonry/brick-08-white-birch.png",
+    "Brick 9":"assets/masonry/brick-09-cottonwood.png",
+    "Brick 10":"assets/masonry/brick-10-frostwood.png",
+    "Brick 11":"assets/masonry/brick-11-cream-stone.png",
+    "Brick 12":"assets/masonry/brick-12-texas-mix.png",
+    "Brick 13":"assets/masonry/brick-13-smokey-mountain.png"
   };
 
   /* =========================================================
@@ -7828,12 +7828,12 @@ function labelHTML(id, d) {
        PLAN / ELEVATION IMAGE FILE
        =========================================================
        Save the annotated elevation image in GitHub using:
-         assets/elevations/PLAN-ELEVATION.jpg
+         assets/elevations/PLAN-ELEVATION.png
 
        Examples:
-         assets/elevations/1676-X.jpg
-         assets/elevations/2382-B.jpg
-         assets/elevations/2881-V.jpg
+         assets/elevations/1676-X.png
+         assets/elevations/2382-B.png
+         assets/elevations/2881-V.png
 
        IMPORTANT:
        Put the arrows and labels directly on the image itself.
@@ -7844,7 +7844,7 @@ function labelHTML(id, d) {
       encodeURIComponent(String(d.plan || "").trim()) +
       "-" +
       encodeURIComponent(String(d.elevation || "").trim().toUpperCase()) +
-      ".jpg";
+      ".png";
 
     const lotBlock = assigned.lot
       ? "Lot " + assigned.lot + (assigned.tract ? " / Block " + assigned.tract : "")
