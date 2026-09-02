@@ -209,11 +209,17 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
 .v2-top-status-dot.pending{background:#2563eb}
 .v2-top-status-dot.complete{background:#15803d}
 .v2-top-actions{
-  margin-left:auto;
   display:flex;
   align-items:center;
   gap:9px;
   padding:10px 0;
+}
+.v2-top-actions-left{
+  margin-left:0;
+  margin-right:24px;
+  padding-right:24px;
+  border-right:1px solid #dfe3e6;
+  flex:none;
 }
 .v2-pdf-btn{
   display:inline-flex;
@@ -263,6 +269,16 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
      SELECTED HOMESITE SUMMARY BAR
      ========================================================= -->
 <div class="v2-top-summary" id="v2TopSummary">
+  <div class="v2-top-actions v2-top-actions-left">
+    <button type="button" class="v2-pdf-btn" id="v2GenerateSchemePdf">
+      <span class="v2-pdf-icon">▣</span>
+      Generate Scheme PDF
+    </button>
+    <button type="button" class="v2-pdf-btn" id="v2GenerateHoaDoc">
+      <span class="v2-pdf-icon">▤</span>
+      Generate HOA Doc
+    </button>
+  </div>
   <div class="v2-top-stat wide">
     <span class="v2-top-label">Homesite</span>
     <span class="v2-top-value" id="v2TopHomesite">—</span>
@@ -291,12 +307,6 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
     </span>
   </div>
 
-  <div class="v2-top-actions">
-    <button type="button" class="v2-pdf-btn" id="v2GenerateSchemePdf">
-      <span class="v2-pdf-icon">▣</span>
-      Generate Scheme PDF
-    </button>
-  </div>
 </div>
 
 
@@ -8098,6 +8108,9 @@ function labelHTML(id, d) {
   }
 
   $("v2GenerateSchemePdf").addEventListener("click", generateSchemePdf);
+  $("v2GenerateHoaDoc").addEventListener("click", ()=>{
+    alert("HOA document generation will be added next.");
+  });
 
   // Keep the top summary synced with selections, saves, unlocks, and edits.
   setInterval(updateTopSummary, 250);
