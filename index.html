@@ -8584,12 +8584,24 @@ window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
     printWindow.document.close();
   }
 
-  $("v2GenerateHoaDoc").addEventListener("click", openHoaGenerator);
-  $("v2HoaClose").addEventListener("click", closeHoaGenerator);
-  $("v2HoaCancel").addEventListener("click", closeHoaGenerator);
-  $("v2HoaPrint").addEventListener("click", generateHoaPdf);
-  $("v2HoaModal").addEventListener("click", e=>{
-    if(e.target === $("v2HoaModal")) closeHoaGenerator();
+  // Bind the HOA controls after the page markup has finished loading.
+  // This keeps startup from stopping before shared/live data connects.
+  window.addEventListener("DOMContentLoaded", ()=>{
+    const hoaGenerateBtn = $("v2GenerateHoaDoc");
+    const hoaCloseBtn = $("v2HoaClose");
+    const hoaCancelBtn = $("v2HoaCancel");
+    const hoaPrintBtn = $("v2HoaPrint");
+    const hoaModal = $("v2HoaModal");
+
+    if(hoaGenerateBtn) hoaGenerateBtn.addEventListener("click", openHoaGenerator);
+    if(hoaCloseBtn) hoaCloseBtn.addEventListener("click", closeHoaGenerator);
+    if(hoaCancelBtn) hoaCancelBtn.addEventListener("click", closeHoaGenerator);
+    if(hoaPrintBtn) hoaPrintBtn.addEventListener("click", generateHoaPdf);
+    if(hoaModal){
+      hoaModal.addEventListener("click", e=>{
+        if(e.target === hoaModal) closeHoaGenerator();
+      });
+    }
   });
 
   // Keep the top summary synced with selections, saves, unlocks, and edits.
