@@ -251,6 +251,167 @@ hr{border:0;border-top:1px solid #e5e7eb;margin:14px 0}
   .v2-top-actions{padding-right:4px}
 }
 
+
+/* =========================================================
+   HOA DOCUMENT GENERATOR
+   ========================================================= */
+.v2-hoa-modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+  background:rgba(17,24,39,.42);
+  z-index:250;
+}
+.v2-hoa-modal.open{display:flex;}
+.v2-hoa-dialog{
+  width:min(880px,calc(100vw - 40px));
+  max-height:calc(100vh - 56px);
+  overflow:auto;
+  background:#fff;
+  border:1px solid #d7dde5;
+  border-top:5px solid #b21f2d;
+  border-radius:12px;
+  box-shadow:0 24px 70px rgba(15,23,42,.28);
+}
+.v2-hoa-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  padding:18px 20px 14px;
+  border-bottom:1px solid #e4e7ec;
+}
+.v2-hoa-title{
+  margin:0;
+  font-size:20px;
+  line-height:1.1;
+  color:#172033;
+}
+.v2-hoa-sub{
+  margin-top:5px;
+  font-size:12px;
+  color:#667085;
+}
+.v2-hoa-close{
+  width:34px;
+  height:34px;
+  border:1px solid #d0d5dd;
+  border-radius:8px;
+  background:#fff;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+}
+.v2-hoa-body{padding:18px 20px 8px;}
+.v2-hoa-auto{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin-bottom:18px;
+}
+.v2-hoa-auto-item{
+  padding:10px 11px;
+  border:1px solid #e1e5ea;
+  border-radius:8px;
+  background:#f8f9fb;
+}
+.v2-hoa-auto-label{
+  display:block;
+  margin-bottom:3px;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#667085;
+}
+.v2-hoa-auto-value{
+  font-size:12px;
+  font-weight:800;
+  color:#172033;
+}
+.v2-hoa-section{
+  margin:4px 0 10px;
+  font-size:12px;
+  font-weight:900;
+  color:#172033;
+}
+.v2-hoa-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.v2-hoa-field{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.v2-hoa-field.span-2{grid-column:span 2;}
+.v2-hoa-field.span-3{grid-column:span 3;}
+.v2-hoa-field label{
+  font-size:10px;
+  font-weight:800;
+  color:#344054;
+}
+.v2-hoa-field input,
+.v2-hoa-field select,
+.v2-hoa-field textarea{
+  width:100%;
+  min-height:38px;
+  padding:8px 10px;
+  border:1px solid #cfd6df;
+  border-radius:7px;
+  background:#fff;
+  color:#172033;
+  font:inherit;
+  font-size:12px;
+}
+.v2-hoa-field textarea{
+  min-height:72px;
+  resize:vertical;
+}
+.v2-hoa-hint{
+  font-size:9px;
+  color:#667085;
+}
+.v2-hoa-actions{
+  position:sticky;
+  bottom:0;
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  padding:13px 20px 16px;
+  border-top:1px solid #e4e7ec;
+  background:rgba(255,255,255,.96);
+}
+.v2-hoa-actions button{
+  min-height:38px;
+  padding:0 14px;
+  border-radius:7px;
+  border:1px solid #cfd6df;
+  background:#fff;
+  color:#172033;
+  font-weight:800;
+  cursor:pointer;
+}
+.v2-hoa-actions .primary{
+  border-color:#b21f2d;
+  background:#b21f2d;
+  color:#fff;
+}
+@media(max-width:850px){
+  .v2-hoa-auto{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .v2-hoa-grid{grid-template-columns:1fr 1fr;}
+  .v2-hoa-field.span-3{grid-column:span 2;}
+}
+@media(max-width:560px){
+  .v2-hoa-modal{padding:10px;}
+  .v2-hoa-auto,.v2-hoa-grid{grid-template-columns:1fr;}
+  .v2-hoa-field.span-2,.v2-hoa-field.span-3{grid-column:span 1;}
+}
+
 </style>
 </head>
 <body>
@@ -2284,7 +2445,7 @@ label.v2-label-conflict{
       <option value="Brick 4">Grey Fog</option>
       <option value="Brick 5">Cibolo Trail</option>
       <option value="Brick 6">Mocha Brown Antique</option>
-      <option value="Brick 7">Old Francisco</option>
+      <option value="Brick 7">Old Fancisco</option>
       <option value="Brick 8">White Birch</option>
       <option value="Brick 9">Cottonwood</option>
       <option value="Brick 10">Frostwood</option>
@@ -7643,7 +7804,7 @@ function labelHTML(id, d) {
     "Brick 4":"assets/elevations/grey-fog.png",
     "Brick 5":"assets/elevations/cibolo-trail.png",
     "Brick 6":"assets/elevations/mocha-brown-antique.png",
-    "Brick 7":"assets/elevations/old-francisco.png",
+    "Brick 7":"assets/elevations/old-fancisco.png",
     "Brick 8":"assets/elevations/white-birch.png",
     "Brick 9":"assets/elevations/cottonwood.png",
     "Brick 10":"assets/elevations/frostwood.png",
@@ -8108,8 +8269,327 @@ function labelHTML(id, d) {
   }
 
   $("v2GenerateSchemePdf").addEventListener("click", generateSchemePdf);
-  $("v2GenerateHoaDoc").addEventListener("click", ()=>{
-    alert("HOA document generation will be added next.");
+
+  function hoaColorName(value){
+    let s = String(value || "").trim();
+    if(!s) return "";
+    s = s.replace(/^SW\s+\d{4}\s+/i, "");
+    s = s.replace(/^SW\s+/i, "");
+    return s.trim();
+  }
+
+  function hoaFormatDate(value){
+    if(!value) return "";
+    const parts = String(value).split("-");
+    if(parts.length !== 3) return value;
+    return parts[1] + "/" + parts[2] + "/" + parts[0].slice(-2);
+  }
+
+  function hoaValue(id){
+    const el = $(id);
+    return el ? String(el.value || "").trim() : "";
+  }
+
+  function setHoaValue(id, value){
+    const el = $(id);
+    if(el) el.value = value == null ? "" : String(value);
+  }
+
+  function openHoaGenerator(){
+    if(!selected){
+      alert("Select a homesite first.");
+      return;
+    }
+
+    const d = state.data[selected] || {};
+    const m = metaFor(selected);
+    const assigned = lotBlockFor(selected);
+
+    if(!m.exteriorSaved){
+      alert("Save the exterior selections before generating the HOA document.");
+      return;
+    }
+
+    const homesite =
+      assigned.lot
+        ? "Lot " + assigned.lot + (assigned.tract ? " / Block " + assigned.tract : "")
+        : selected;
+
+    $("v2HoaAutoHomesite").textContent = homesite;
+    $("v2HoaAutoAddress").textContent = d.address || "—";
+    $("v2HoaAutoPlan").textContent =
+      (d.plan || "—") + (d.elevation ? " / " + d.elevation : "");
+    $("v2HoaAutoScheme").textContent = d.scheme ? "Scheme " + d.scheme : "—";
+
+    const draft = (m.hoaDraft && typeof m.hoaDraft === "object") ? m.hoaDraft : {};
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth()+1).padStart(2,"0");
+    const dd = String(today.getDate()).padStart(2,"0");
+
+    setHoaValue("v2HoaDate", draft.date || `${yyyy}-${mm}-${dd}`);
+    setHoaValue("v2HoaPhase", draft.phase || "");
+    setHoaValue("v2HoaSection", draft.section || "");
+    setHoaValue("v2HoaPlanName", draft.planName || "");
+    setHoaValue("v2HoaGarageOrientation", draft.garageOrientation || "");
+    setHoaValue("v2HoaBedrooms", draft.bedrooms || "");
+    setHoaValue("v2HoaBathrooms", draft.bathrooms || "");
+    setHoaValue("v2HoaSqFt", draft.squareFootage || d.plan || "");
+    setHoaValue("v2HoaGarageType", draft.garageType || "");
+    setHoaValue("v2HoaFrontDoorStyle", draft.frontDoorStyle || "");
+    setHoaValue("v2HoaRoof", draft.roof || "");
+    setHoaValue(
+      "v2HoaAccent",
+      draft.accent || (d.shutters ? "Shutters " + hoaColorName(d.shutters) : "")
+    );
+    setHoaValue("v2HoaFence", draft.fence || "");
+    setHoaValue("v2HoaTreeFront", draft.treeFront || "");
+    setHoaValue("v2HoaTreeSide", draft.treeSide || "");
+    setHoaValue("v2HoaComments", draft.comments || "");
+
+    $("v2HoaModal").classList.add("open");
+    $("v2HoaModal").setAttribute("aria-hidden","false");
+  }
+
+  function closeHoaGenerator(){
+    $("v2HoaModal").classList.remove("open");
+    $("v2HoaModal").setAttribute("aria-hidden","true");
+  }
+
+  function generateHoaPdf(){
+    if(!selected){
+      alert("Select a homesite first.");
+      return;
+    }
+
+    const d = state.data[selected] || {};
+    const m = metaFor(selected);
+    const assigned = lotBlockFor(selected);
+    const fixed = SCHEME_FIXED_COLORS[d.scheme] || {};
+    const type = exteriorTypeFromData(d);
+    const isBrick = type === "brick";
+
+    const draft = {
+      date: hoaValue("v2HoaDate"),
+      phase: hoaValue("v2HoaPhase"),
+      section: hoaValue("v2HoaSection"),
+      planName: hoaValue("v2HoaPlanName"),
+      garageOrientation: hoaValue("v2HoaGarageOrientation"),
+      bedrooms: hoaValue("v2HoaBedrooms"),
+      bathrooms: hoaValue("v2HoaBathrooms"),
+      squareFootage: hoaValue("v2HoaSqFt"),
+      garageType: hoaValue("v2HoaGarageType"),
+      frontDoorStyle: hoaValue("v2HoaFrontDoorStyle"),
+      roof: hoaValue("v2HoaRoof"),
+      accent: hoaValue("v2HoaAccent"),
+      fence: hoaValue("v2HoaFence"),
+      treeFront: hoaValue("v2HoaTreeFront"),
+      treeSide: hoaValue("v2HoaTreeSide"),
+      comments: hoaValue("v2HoaComments")
+    };
+
+    // Keep the manual HOA-only details with this homesite for next time.
+    m.hoaDraft = draft;
+    persist();
+
+    const primary = hoaColorName(fixed.primary || "");
+    const secondary = hoaColorName(fixed.secondary || "");
+    const trim = hoaColorName(fixed.trim || "");
+    const fascia = hoaColorName(fixed.fascia || "");
+    const garage = hoaColorName(d.garage || "");
+    const door = hoaColorName(d.door || "");
+    const shutters = hoaColorName(d.shutters || "");
+
+    const mainPaint = isBrick || !secondary
+      ? primary
+      : primary + " with secondary " + secondary;
+
+    const trimLine = trim + (fascia ? "    Fascia - " + fascia : "");
+    const brickLine = isBrick ? (d.brick || "") : "NA";
+    const garageLine = [draft.garageType, garage ? "color: " + garage : ""].filter(Boolean).join(" - ");
+    const doorLine = [draft.frontDoorStyle, door ? "color: " + door : ""].filter(Boolean).join(" color: ").replace(" color: color: "," color: ");
+
+    const printWindow = window.open("", "_blank");
+    if(!printWindow){
+      alert("Your browser blocked the HOA document window. Allow pop-ups for this site and try again.");
+      return;
+    }
+
+    closeHoaGenerator();
+
+    printWindow.document.open();
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Adelton HOA - ${esc(d.address || selected)}</title>
+<style>
+  @page{size:letter portrait;margin:.38in .5in}
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;padding:0;background:#fff;color:#111;
+    font-family:Arial,Helvetica,sans-serif;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  body{font-size:9.5px}
+  .page{width:100%;min-height:9.95in;position:relative}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+  .logo{
+    display:inline-block;padding:8px 18px;
+    border:4px solid #0b4a43;
+    outline:2px solid #0b4a43;
+    outline-offset:3px;
+    color:#0b4a43;
+    font-size:17px;font-weight:900;letter-spacing:.18em;
+  }
+  .address-block{text-align:right;font-size:8px;font-weight:700;line-height:1.45}
+  .title{text-align:center;font-size:10px;margin:3px 0 20px}
+  .row{
+    display:grid;
+    grid-template-columns:max-content 1fr;
+    gap:6px;
+    align-items:end;
+    margin:8px 0;
+  }
+  .row.inline-4{grid-template-columns:max-content 90px max-content 70px max-content 70px max-content 90px;gap:5px}
+  .row.inline-3{grid-template-columns:max-content 85px max-content 85px max-content 120px;gap:5px}
+  .label{font-weight:700;white-space:nowrap}
+  .value{
+    min-height:16px;padding:0 3px 2px;
+    border-bottom:1px solid #111;
+    color:#d62828;
+    font-size:11px;
+  }
+  .value.black{color:#111}
+  .wide{width:100%}
+  .comments{min-height:30px}
+  .approval{margin-top:18px;font-weight:700}
+  .footer{
+    position:absolute;left:0;right:0;bottom:0;
+    font-size:6.5px;line-height:1.25
+  }
+  @media print{body{padding:0}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="head">
+    <div class="logo">ADELTON</div>
+    <div class="address-block">
+      2043 S Lamar Blvd, Suite 2150<br>
+      Austin, Texas 78704<br>
+      (512) 472 - 7455<br>
+      FAX: (512) 472 - 7499
+    </div>
+  </div>
+
+  <div class="title">ARC Residential Home Builder Submittal Application</div>
+
+  <div class="row" style="grid-template-columns:max-content 95px;">
+    <span class="label">Date of Initial Submittal:</span>
+    <span class="value">${esc(hoaFormatDate(draft.date))}</span>
+  </div>
+
+  <div class="row inline-4">
+    <span class="label">Lot #:</span><span class="value">${esc(assigned.lot || "")}</span>
+    <span class="label">Block:</span><span class="value">${esc(assigned.tract || "")}</span>
+    <span class="label">Phase:</span><span class="value">${esc(draft.phase)}</span>
+    <span class="label">Section:</span><span class="value">${esc(draft.section)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Address:</span>
+    <span class="value">${esc(d.address || "")}</span>
+  </div>
+
+  <div class="row inline-4">
+    <span class="label">Plan Name:</span><span class="value">${esc(draft.planName)}</span>
+    <span class="label">Plan #:</span><span class="value">${esc(d.plan || "")}</span>
+    <span class="label">Elevation:</span><span class="value">${esc(d.elevation || "")}</span>
+    <span class="label">Garage Orientation:</span><span class="value">${esc(draft.garageOrientation)}</span>
+  </div>
+
+  <div class="row inline-3">
+    <span class="label">Bedroom Count:</span><span class="value">${esc(draft.bedrooms)}</span>
+    <span class="label">Bathroom Count:</span><span class="value">${esc(draft.bathrooms)}</span>
+    <span class="label">Square Footage:</span><span class="value">${esc(draft.squareFootage)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Color Scheme Number or Name:</span>
+    <span class="value">${esc(d.scheme || "")}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Main Paint Name:</span>
+    <span class="value">${esc(mainPaint)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Trim / Columns / Railing Paint Name:</span>
+    <span class="value">${esc(trimLine)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Stone / Brick:</span>
+    <span class="value">${esc(brickLine)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Garage Type & Color:</span>
+    <span class="value">${esc(garageLine)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Front Door Style and Color:</span>
+    <span class="value">${esc(doorLine)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Roof Material and Color:</span>
+    <span class="value">${esc(draft.roof)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Any other Architectural Accent Materials or Colors:</span>
+    <span class="value">${esc(draft.accent || (shutters ? "Shutters " + shutters : ""))}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Fence Type/s and Height:</span>
+    <span class="value">${esc(draft.fence)}</span>
+  </div>
+
+  <div class="row" style="grid-template-columns:max-content 1fr max-content 1fr;gap:6px">
+    <span class="label">Street Tree Species - Front Yard:</span><span class="value">${esc(draft.treeFront)}</span>
+    <span class="label">Side Yard (if applicable):</span><span class="value">${esc(draft.treeSide)}</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Comments:</span>
+    <span class="value comments">${esc(draft.comments)}</span>
+  </div>
+
+  <div class="approval">ARC Approval Stamp upon completion:</div>
+
+  <div class="footer">
+    https://benchmarkdev.sharepoint.com/sites/Projects/Shared Documents/BASTROP/01 Builders/ARC Maps and Resources/01 Applications and Forms/ARC Residential Review Checklist and Procedure Cover Page.docx
+  </div>
+</div>
+<script>
+window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
+<\/script>
+</body>
+</html>`);
+    printWindow.document.close();
+  }
+
+  $("v2GenerateHoaDoc").addEventListener("click", openHoaGenerator);
+  $("v2HoaClose").addEventListener("click", closeHoaGenerator);
+  $("v2HoaCancel").addEventListener("click", closeHoaGenerator);
+  $("v2HoaPrint").addEventListener("click", generateHoaPdf);
+  $("v2HoaModal").addEventListener("click", e=>{
+    if(e.target === $("v2HoaModal")) closeHoaGenerator();
   });
 
   // Keep the top summary synced with selections, saves, unlocks, and edits.
@@ -8141,5 +8621,113 @@ function labelHTML(id, d) {
 })();
 
 </script>
+
+<div class="v2-hoa-modal" id="v2HoaModal" aria-hidden="true">
+  <div class="v2-hoa-dialog" role="dialog" aria-modal="true" aria-labelledby="v2HoaTitle">
+    <div class="v2-hoa-head">
+      <div>
+        <h2 class="v2-hoa-title" id="v2HoaTitle">Generate HOA Document</h2>
+        <div class="v2-hoa-sub">Plot-map selections are filled automatically. Complete the remaining HOA-only details below.</div>
+      </div>
+      <button type="button" class="v2-hoa-close" id="v2HoaClose" aria-label="Close">×</button>
+    </div>
+
+    <div class="v2-hoa-body">
+      <div class="v2-hoa-auto">
+        <div class="v2-hoa-auto-item"><span class="v2-hoa-auto-label">Homesite</span><span class="v2-hoa-auto-value" id="v2HoaAutoHomesite">—</span></div>
+        <div class="v2-hoa-auto-item"><span class="v2-hoa-auto-label">Address</span><span class="v2-hoa-auto-value" id="v2HoaAutoAddress">—</span></div>
+        <div class="v2-hoa-auto-item"><span class="v2-hoa-auto-label">Plan / Elevation</span><span class="v2-hoa-auto-value" id="v2HoaAutoPlan">—</span></div>
+        <div class="v2-hoa-auto-item"><span class="v2-hoa-auto-label">Scheme</span><span class="v2-hoa-auto-value" id="v2HoaAutoScheme">—</span></div>
+      </div>
+
+      <div class="v2-hoa-section">HOA Details to Complete</div>
+      <div class="v2-hoa-grid">
+        <div class="v2-hoa-field">
+          <label for="v2HoaDate">Date of Initial Submittal</label>
+          <input id="v2HoaDate" type="date">
+        </div>
+        <div class="v2-hoa-field">
+          <label for="v2HoaPhase">Phase</label>
+          <input id="v2HoaPhase" type="text" placeholder="Phase">
+        </div>
+        <div class="v2-hoa-field">
+          <label for="v2HoaSection">Section</label>
+          <input id="v2HoaSection" type="text" placeholder="Section">
+        </div>
+
+        <div class="v2-hoa-field">
+          <label for="v2HoaPlanName">Plan Name</label>
+          <input id="v2HoaPlanName" type="text" placeholder="Optional plan name">
+        </div>
+        <div class="v2-hoa-field">
+          <label for="v2HoaGarageOrientation">Garage Orientation</label>
+          <select id="v2HoaGarageOrientation">
+            <option value="">Select</option>
+            <option>LEFT</option>
+            <option>RIGHT</option>
+          </select>
+        </div>
+        <div class="v2-hoa-field">
+          <label for="v2HoaBedrooms">Bedroom Count</label>
+          <input id="v2HoaBedrooms" type="text" inputmode="numeric" placeholder="Bedrooms">
+        </div>
+
+        <div class="v2-hoa-field">
+          <label for="v2HoaBathrooms">Bathroom Count</label>
+          <input id="v2HoaBathrooms" type="text" placeholder="Example: 2 1/2">
+        </div>
+        <div class="v2-hoa-field">
+          <label for="v2HoaSqFt">Square Footage</label>
+          <input id="v2HoaSqFt" type="text" inputmode="numeric" placeholder="Square footage">
+          <div class="v2-hoa-hint">Defaults to the plan number; change it if needed.</div>
+        </div>
+        <div class="v2-hoa-field">
+          <label for="v2HoaGarageType">Garage Type</label>
+          <input id="v2HoaGarageType" type="text" placeholder="Example: Vertical Short Panel">
+        </div>
+
+        <div class="v2-hoa-field">
+          <label for="v2HoaFrontDoorStyle">Front Door Style</label>
+          <input id="v2HoaFrontDoorStyle" type="text" placeholder="Example: S982 Saratoga">
+        </div>
+        <div class="v2-hoa-field span-2">
+          <label for="v2HoaRoof">Roof Material and Color</label>
+          <input id="v2HoaRoof" type="text" placeholder="Example: Driftwood Dimensional">
+        </div>
+
+        <div class="v2-hoa-field span-3">
+          <label for="v2HoaAccent">Any Other Architectural Accent Materials or Colors</label>
+          <input id="v2HoaAccent" type="text">
+          <div class="v2-hoa-hint">Shutter color is filled automatically; you can add or change the wording here.</div>
+        </div>
+
+        <div class="v2-hoa-field span-3">
+          <label for="v2HoaFence">Fence Type/s and Height</label>
+          <input id="v2HoaFence" type="text">
+        </div>
+
+        <div class="v2-hoa-field span-2">
+          <label for="v2HoaTreeFront">Street Tree Species - Front Yard</label>
+          <input id="v2HoaTreeFront" type="text">
+        </div>
+        <div class="v2-hoa-field">
+          <label for="v2HoaTreeSide">Side Yard (if applicable)</label>
+          <input id="v2HoaTreeSide" type="text">
+        </div>
+
+        <div class="v2-hoa-field span-3">
+          <label for="v2HoaComments">Comments</label>
+          <textarea id="v2HoaComments"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="v2-hoa-actions">
+      <button type="button" id="v2HoaCancel">Cancel</button>
+      <button type="button" class="primary" id="v2HoaPrint">Generate HOA PDF</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
