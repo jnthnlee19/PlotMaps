@@ -8330,7 +8330,8 @@ function labelHTML(id, d) {
     setHoaValue("v2HoaDate", draft.date || `${yyyy}-${mm}-${dd}`);
     setHoaValue("v2HoaPhase", draft.phase || "");
     setHoaValue("v2HoaSection", draft.section || "");
-    setHoaValue("v2HoaPlanName", draft.planName || "");
+    const hoaPlanNameDisplay = $("v2HoaPlanNameDisplay");
+    if(hoaPlanNameDisplay) hoaPlanNameDisplay.textContent = d.plan || "—";
     setHoaValue("v2HoaGarageOrientation", draft.garageOrientation || "");
     setHoaValue("v2HoaBedrooms", draft.bedrooms || "");
     setHoaValue("v2HoaBathrooms", draft.bathrooms || "");
@@ -8373,7 +8374,7 @@ function labelHTML(id, d) {
       date: hoaValue("v2HoaDate"),
       phase: hoaValue("v2HoaPhase"),
       section: hoaValue("v2HoaSection"),
-      planName: hoaValue("v2HoaPlanName"),
+      planName: d.plan || "",
       garageOrientation: hoaValue("v2HoaGarageOrientation"),
       bedrooms: hoaValue("v2HoaBedrooms"),
       bathrooms: hoaValue("v2HoaBathrooms"),
@@ -8392,6 +8393,11 @@ function labelHTML(id, d) {
     m.hoaDraft = draft;
     persist();
 
+    const brickOption = isBrick && d.brick
+      ? Array.from($("v2Brick").options).find(o => o.value === d.brick)
+      : null;
+    const brickDisplayName = brickOption ? brickOption.textContent.replace(/^Brick\s*\d+\s*/i,"").trim() : (d.brick || "");
+
     const primary = hoaColorName(fixed.primary || "");
     const secondary = hoaColorName(fixed.secondary || "");
     const trim = hoaColorName(fixed.trim || "");
@@ -8405,7 +8411,7 @@ function labelHTML(id, d) {
       : primary + " with secondary " + secondary;
 
     const trimLine = trim + (fascia ? "    Fascia - " + fascia : "");
-    const brickLine = isBrick ? (d.brick || "") : "NA";
+    const brickLine = isBrick ? brickDisplayName : "NA";
     const garageLine = [draft.garageType, garage ? "color: " + garage : ""].filter(Boolean).join(" - ");
     const doorLine = [draft.frontDoorStyle, door ? "color: " + door : ""].filter(Boolean).join(" color: ").replace(" color: color: "," color: ");
 
@@ -8434,22 +8440,29 @@ function labelHTML(id, d) {
   body{font-size:9.5px}
   .page{width:100%;min-height:9.95in;position:relative}
   .head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+  .logo-wrap{position:relative;width:132px;height:47px;}
   .logo{
-    display:inline-block;padding:8px 18px;
-    border:4px solid #0b4a43;
-    outline:2px solid #0b4a43;
-    outline-offset:3px;
-    color:#0b4a43;
-    font-size:17px;font-weight:900;letter-spacing:.18em;
+    position:absolute;left:10px;top:5px;
+    width:112px;height:37px;
+    display:flex;align-items:center;justify-content:center;
+    background:#0b4a43;color:#fff;
+    font-size:14px;font-weight:900;letter-spacing:.18em;
+    clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);
+  }
+  .logo::after{
+    content:"";
+    position:absolute;inset:4px;
+    border:2px solid #fff;
+    clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);
   }
   .address-block{text-align:right;font-size:8px;font-weight:700;line-height:1.45}
-  .title{text-align:center;font-size:10px;margin:3px 0 20px}
+  .title{text-align:center;font-size:10px;margin:7px 0 23px}
   .row{
     display:grid;
     grid-template-columns:max-content 1fr;
     gap:6px;
     align-items:end;
-    margin:8px 0;
+    margin:7px 0;
   }
   .row.inline-4{grid-template-columns:max-content 90px max-content 70px max-content 70px max-content 90px;gap:5px}
   .row.inline-3{grid-template-columns:max-content 85px max-content 85px max-content 120px;gap:5px}
@@ -8457,7 +8470,7 @@ function labelHTML(id, d) {
   .value{
     min-height:16px;padding:0 3px 2px;
     border-bottom:1px solid #111;
-    color:#d62828;
+    color:#e1251b;
     font-size:11px;
   }
   .value.black{color:#111}
@@ -8474,7 +8487,7 @@ function labelHTML(id, d) {
 <body>
 <div class="page">
   <div class="head">
-    <div class="logo">ADELTON</div>
+    <div class="logo-wrap"><div class="logo">ADELTON</div></div>
     <div class="address-block">
       2043 S Lamar Blvd, Suite 2150<br>
       Austin, Texas 78704<br>
@@ -8503,7 +8516,7 @@ function labelHTML(id, d) {
   </div>
 
   <div class="row inline-4">
-    <span class="label">Plan Name:</span><span class="value">${esc(draft.planName)}</span>
+    <span class="label">Plan Name:</span><span class="value">${esc(d.plan || "")}</span>
     <span class="label">Plan #:</span><span class="value">${esc(d.plan || "")}</span>
     <span class="label">Elevation:</span><span class="value">${esc(d.elevation || "")}</span>
     <span class="label">Garage Orientation:</span><span class="value">${esc(draft.garageOrientation)}</span>
@@ -8668,8 +8681,10 @@ window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
         </div>
 
         <div class="v2-hoa-field">
-          <label for="v2HoaPlanName">Plan Name</label>
-          <input id="v2HoaPlanName" type="text" placeholder="Optional plan name">
+          <label>Plan Name</label>
+          <div class="v2-hoa-auto-item" style="min-height:38px;padding:8px 10px;">
+            <span class="v2-hoa-auto-value" id="v2HoaPlanNameDisplay">—</span>
+          </div>
         </div>
         <div class="v2-hoa-field">
           <label for="v2HoaGarageOrientation">Garage Orientation</label>
@@ -8695,12 +8710,26 @@ window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
         </div>
         <div class="v2-hoa-field">
           <label for="v2HoaGarageType">Garage Type</label>
-          <input id="v2HoaGarageType" type="text" placeholder="Example: Vertical Short Panel">
+          <select id="v2HoaGarageType">
+            <option value="">Select</option>
+            <option>Flush Panel</option>
+            <option>Long Panel</option>
+            <option>Vertical Short Panel</option>
+            <option>Charleston</option>
+          </select>
         </div>
 
         <div class="v2-hoa-field">
           <label for="v2HoaFrontDoorStyle">Front Door Style</label>
-          <input id="v2HoaFrontDoorStyle" type="text" placeholder="Example: S982 Saratoga">
+          <select id="v2HoaFrontDoorStyle">
+            <option value="">Select</option>
+            <option>2 Panel Craftsman Shaker</option>
+            <option>2 Panel Craftsman</option>
+            <option>1 Panel</option>
+            <option>6 Lite</option>
+            <option>3 Lite</option>
+            <option>5 Lite</option>
+          </select>
         </div>
         <div class="v2-hoa-field span-2">
           <label for="v2HoaRoof">Roof Material and Color</label>
