@@ -7642,146 +7642,42 @@ function labelHTML(id, d) {
     "Brick 13":"assets/masonry/brick-13-smokey-mountain.jpg"
   };
 
-  /* =========================================================
-     ADELTON PDF COLOR HEX DIRECTORY
-     =========================================================
-     This is the ONLY section you need to edit if a PDF swatch
-     needs a color correction.
 
-     FORMAT:
-       "Color name exactly as used above": "#HEXCODE",
-
-     AUDIT NOTES:
-     - Values below were audited against Sherwin-Williams digital
-       color data where available.
-     - Existing Adelton selection names are preserved so old saved
-       homes continue to match.
-     - Three existing labels have code/name conflicts and are flagged
-       inline below rather than silently changing the saved-data key.
-     ========================================================= */
+  /* Screen/PDF swatches are representative only. */
   const PDF_COLOR_HEX = {
-    "SW 0048 Bunglehouse Blue": "#47626F",
-    "SW 0064 Blue Peacock": "#014E4C",
-    "SW 2808 Rockwood Dark Brown": "#5F4D43",
-    "SW 2816 Rookwood Dark Green": "#565C4A",
-    "SW 6005 Folkstone": "#6D6562",
-    "SW 6006 Black Bean": "#403330",
-    "SW 6027 Cordovan": "#5F3D3F",
-    "SW 6051 Sashay Sand": "#CFB4A8",
-    "SW 6069 French Roast": "#4F3426",
-    "SW 6103 Tea Chest": "#7D644D",
-    "SW 6177 Softened Green": "#BBBCA7",
-    "SW 6181 Secret Garden": "#4F523A",
-    "SW 6188 Shade-Grown": "#4E5147",
-    "SW 6193 Privaliged green": "#7A8775", // official name: SW 6193 Privilege Green
-    "SW 6194 Basil": "#626E60",
-    "SW 6202 Cast Iron": "#64645A",
-    "SW 6208 Pewter Green": "#5E6259",
-    "SW 6209 Ripe Olive": "#44483D",
-    "SW 6216 Jasper": "#343B36",
-    "SW 6222 Riverway": "#5D7274",
-    "SW 6237 Dark Night": "#23383F",
-    "SW 6240 Windy Blue": "#AABAC6",
-    "SW 6243 Distance": "#5D6F7F",
-    "SW 6244 Naval": "#2F3D4C",
-    "SW 6249 Storm Cloud": "#7A848D",
-    "SW 6253 Olympus White": "#D4D8D7",
-    "SW 6258 Tricorn Black": "#2F2F30",
-    "SW 6339 Persimmon": "#D9987C",
-    "SW 6389 Butternut": "#CC9B5C",
-    "SW 6451 Nurture Green": "#98B092",
-    "SW 6453 Cilantro": "#537150",
-    "SW 6472 Composed": "#7EA298",
-    "SW 6481 Green Bay": "#2E6864",
-    "SW 6496 Oceanside": "#015A6B",
-    "SW 6606 Corral Reef": "#D9766C", // official spelling: SW 6606 Coral Reef
-    "SW 6666 Enjoyable Yellow": "#F5D6A9",
-    "SW 6678 Sunflower": "#E39A33",
-    "SW 6697 Nugget": "#DBB04A",
-    "SW 6700 Daybreak": "#F3EAC6",
-    "SW 6866 Heartthrob": "#A82E33",
-    "SW 6868 Real Red": "#BF2D32",
-    "SW 6908 Fun Yellow": "#F7E594",
-    "SW 6937 Tantalizing Teal": "#87DCCE",
-    "SW 6988 Bohemian Black": "#3B373C",
-    "SW 6989 Domino": "#353337",
-    "SW 6990 Caviar": "#313031",
-    "SW 6991 Black Magic": "#323132",
-    "SW 6991 Black Swan": "#3A373E", // AUDIT FLAG: Black Swan is officially SW 6279; legacy key preserved
-    "SW 7005 Pure White": "#EDECE6",
-    "SW 7006 Extra White": "#EEEFEA",
-    "SW 7008 Alabaster": "#EDEAE0",
-    "SW 7010 White Duck": "#E5DFD2",
-    "SW 7011 Natural Choice": "#E3DED0",
-    "SW 7012 Creamy": "#EFE8DB",
-    "SW 7019 Gauntlet Gray": "#78736E",
-    "SW 7020 Black Fox": "#4F4842",
-    "SW 7022 Natural Choice": "#E3DED0", // AUDIT FLAG: Natural Choice is officially SW 7011; legacy key preserved
-    "SW 7023 Requisite Gray": "#B9B2A9",
-    "SW 7029 Agreeable Gray": "#D1CBC1",
-    "SW 7036 Accessible Beige": "#D1C7B8",
-    "SW 7037 Balanced Beige": "#C0B2A2",
-    "SW 7041 Van Dyke Brown": "#564536",
-    "SW 7042 Shoji White": "#E6DFD3",
-    "SW 7048 Urban Bronze": "#54504A", // official spelling: SW 7048 Urbane Bronze
-    "SW 7048 Urbane Bronze": "#54504A",
-    "SW 7069 Iron Ore": "#434341",
-    "SW 7072 Online": "#B0B5B5",
-    "SW 7076 Cyberspace": "#44484D",
-    "SW 7083 Darkroom": "#443E40",
-    "SW 7511 Bungalo Brown": "#CDBFB0", // AUDIT FLAG: SW 7511 is officially Bungalow Beige; verify intended color
-    "SW 7514 Foothills": "#827466",
-    "SW 7551 Greek Villa": "#F0ECE2",
-    "SW 7588 Show Stopper": "#A42E37",
-    "SW 7592 Crabby Apple": "#753531",
-    "SW 7600 Bolero": "#903934",
-    "SW 7615 Sea Serpent": "#3E4B54",
-    "SW 7622 Homburg Gray": "#666D69",
-    "SW 7637 Oyster White": "#E2DDD0",
-    "SW 7648 Big Chill": "#D0CEC9",
-    "SW 7668 March Wind": "#BAB9B6",
-    "SW 7671 On the Rocks": "#D0CEC8",
-    "SW 7674 Peppercorn": "#585858",
-    "SW 7689 Row House Tan": "#D2BB9D",
-    "SW 7701 Cavern Clay": "#AC6B53",
-    "SW 7747 Recycled Glass": "#BDC0A0",
-    "SW 7757 High Reflective White": "#F7F7F1",
-    "SW 9015 They call it Mellow": "#FBE4B3",
-    "SW 9030 Limon Fresco": "#CEBC55",
-    "SW 9130 Evergreen Fog": "#95978A",
-    "SW 9138 Stardew": "#A6B2B5",
-    "SW 9140 Blustery Sky": "#6F848C",
-    "SW 9141 Waterloo": "#536872",
-    "SW 9148 Smoky Azurite": "#708D9E",
-    "SW 9166 Drift of Mist": "#DCD8D0",
-    "SW 9175 Deep Forest Brown": "#393437",
-    "SW 9541 White Snow": "#F5F4EE",
-    "SW 9542 Natural White": "#ECEBE8",
-    "SW 9554 Going Grey": "#83807A",
-    "SW 9559 Scattered Showers": "#7B8285",
-    "SW 9560 Night Out": "#656A6E",
-    "SW 9570 Ironclad": "#615C55",
-    "SW 9574 Hulett Ore": "#726F6C",
-    "SW 9582 White Sand": "#EDECE7",
-    "SW 9624 Winsome Grey": "#E7E9E7",
-    "SW 9683 Lakeside": "#ADB8C0",
-    "SW Copper Harbor": "#D57E52", // official SW 6634 Copper Harbor
-    "SW Light French Gray": "#C2C0BB", // official SW 0055 Light French Gray
-    "SW Red Barn 7591": "#7C453D", // official SW 7591 Red Barn
-    "SW Turkish Coffee": "#4D3930", // official SW 6076 Turkish Coffee
+    "SW 7006 Extra White":"#EEEDE7",
+    "SW 6258 Tricorn Black":"#2F2F30",
+    "SW 9140 Blustery Sky":"#6F8793",
+    "SW 7615 Sea Serpent":"#3E4B50",
+    "SW 6866 Heartthrob":"#AD3938",
+    "SW 7008 Alabaster":"#EDEAE0",
+    "SW 7023 Requisite Gray":"#B9B2A9",
+    "SW 7019 Gauntlet Gray":"#78736E",
+    "SW 7037 Balanced Beige":"#C1B2A0",
+    "SW 7622 Homburg Gray":"#666B64",
+    "SW 7022 Natural Choice":"#E3DED0",
+    "SW 7020 Black Fox":"#4F4842",
+    "SW 9130 Evergreen Fog":"#95978A",
+    "SW 7036 Accessible Beige":"#D1C7B8",
+    "SW 7042 Shoji White":"#E6DFD3",
+    "SW 7069 Iron Ore":"#434341",
+    "SW 7674 Peppercorn":"#585858",
+    "SW Light French Gray":"#C2C0BB",
+    "SW 9166 Drift of Mist":"#DCD8D0",
+    "SW 7005 Pure White":"#EDECE6",
+    "SW 6208 Pewter Green":"#5E6259",
+    "SW Red Barn 7591":"#7C453D",
+    "SW 6244 Naval":"#2F3D4C",
+    "SW 6209 Ripe Olive":"#44483D",
+    "SW 7048 Urbane Bronze":"#54504A",
+    "SW 7048 Urban Bronze":"#54504A",
+    "SW 7600 Bolero":"#903934",
+    "SW 6237 Dark Night":"#23383E",
+    "SW 6188 Shade-Grown":"#4C5147",
+    "SW Turkish Coffee":"#4A382B"
   };
 
-  /*
-     HEX COVERAGE AUDIT: 109 of 109 Adelton scheme/door color strings
-     currently have an explicit entry above. No active Adelton scheme color relies
-     on the neutral-gray fallback.
-  */
-
-
   function pdfSwatchHex(color){
-    if(color && !PDF_COLOR_HEX[color]){
-      console.warn("Missing Adelton PDF hex color:", color);
-    }
     return PDF_COLOR_HEX[color] || "#D7D5D0";
   }
 
