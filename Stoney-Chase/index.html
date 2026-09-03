@@ -2292,7 +2292,12 @@ label.v2-label-conflict{
         <option value="Texas Mix">Texas Mix</option>
         <option value="Smokey Mountain">Smokey Mountain</option>
       </optgroup>
+      <option value="__OTHER__">OTHER — Enter Legacy Masonry</option>
     </select>
+    <div id="v2BrickOtherWrap" style="display:none;margin-top:7px">
+      <label for="v2BrickOther">Other Masonry Name *</label>
+      <input id="v2BrickOther" type="text" placeholder="Enter existing/legacy masonry name">
+    </div>
   </div>
 
   <label for="v2Scheme" id="v2SchemeLabel">Siding *</label>
@@ -2300,11 +2305,27 @@ label.v2-label-conflict{
     <option value="">Save Home First</option>
   </select>
 
+  <div id="v2SchemeOtherWrap" style="display:none;margin-top:7px">
+    <label for="v2SchemeOther">Other Siding / Paint Colors *</label>
+    <input id="v2SchemeOther" type="text" placeholder="Example: Accessible Beige w/ White Duck">
+  </div>
+
+  <div id="v2SidingOnlyOtherDetails" style="display:none;margin-top:7px">
+    <label for="v2OtherTrim">Other Trim Color *</label>
+    <input id="v2OtherTrim" type="text" placeholder="Enter trim color">
+    <label for="v2OtherShutters" style="margin-top:7px">Other Shutter Color *</label>
+    <input id="v2OtherShutters" type="text" placeholder="Enter shutter color">
+  </div>
+
   <div id="v2MasonryTrimWrap" style="display:none">
     <label for="v2MasonryTrim">Trim *</label>
     <select id="v2MasonryTrim" disabled>
       <option value="">Select Trim</option>
     </select>
+    <div id="v2MasonryTrimOtherWrap" style="display:none;margin-top:7px">
+      <label for="v2MasonryTrimOther">Other Trim Color *</label>
+      <input id="v2MasonryTrimOther" type="text" placeholder="Enter existing/legacy trim color">
+    </div>
   </div>
 
   <div class="v2-scheme-summary" id="v2SchemeSummary" style="display:none">
@@ -2338,11 +2359,19 @@ label.v2-label-conflict{
   <select id="v2Door" disabled>
     <option value="">Save Home First</option>
   </select>
+  <div id="v2DoorOtherWrap" style="display:none;margin-top:7px">
+    <label for="v2DoorOther">Other Front Door Color *</label>
+    <input id="v2DoorOther" type="text" placeholder="Enter existing/legacy door color">
+  </div>
 
   <label for="v2Garage">Garage Door Color *</label>
   <select id="v2Garage" disabled>
     <option value="">Save Home First</option>
   </select>
+  <div id="v2GarageOtherWrap" style="display:none;margin-top:7px">
+    <label for="v2GarageOther">Other Garage Door Color *</label>
+    <input id="v2GarageOther" type="text" placeholder="Enter existing/legacy garage color">
+  </div>
 
   <label for="v2Shutters" id="v2ShuttersLabel" style="display:none">Shutter Color</label>
   <select id="v2Shutters" disabled style="display:none">
@@ -2836,6 +2865,51 @@ const fields = {
     "Match Siding","Iron Ore","Black Fox","Alabaster","Pure White"
   ];
 
+  const OTHER_VALUE = "__OTHER__";
+  const CUSTOM_SCHEME_PREFIX = "CUSTOM:";
+
+  function showOtherWrap(id, show){
+    const el = $(id);
+    if(el) el.style.display = show ? "block" : "none";
+  }
+
+  function actualOtherValue(selectId, inputId){
+    const select = $(selectId);
+    const input = $(inputId);
+    return select && select.value === OTHER_VALUE
+      ? ((input && input.value) || "").trim()
+      : ((select && select.value) || "").trim();
+  }
+
+  function setSelectWithOther(selectId, inputId, savedValue, standardValues){
+    const select = $(selectId);
+    const input = $(inputId);
+    const value = String(savedValue || "").trim();
+    const standards = standardValues || [];
+    if(!select) return;
+
+    if(value && standards.includes(value)){
+      select.value = value;
+      if(input) input.value = "";
+    } else if(value){
+      select.value = OTHER_VALUE;
+      if(input) input.value = value;
+    } else {
+      select.value = "";
+      if(input) input.value = "";
+    }
+  }
+
+  function updateOtherFields(){
+    const type = getExteriorType();
+    showOtherWrap("v2BrickOtherWrap", type === "brick" && $("v2Brick").value === OTHER_VALUE);
+    showOtherWrap("v2MasonryTrimOtherWrap", type === "brick" && $("v2MasonryTrim").value === OTHER_VALUE);
+    showOtherWrap("v2SchemeOtherWrap", !!type && $("v2Scheme").value === OTHER_VALUE);
+    showOtherWrap("v2SidingOnlyOtherDetails", type === "all-siding" && $("v2Scheme").value === OTHER_VALUE);
+    showOtherWrap("v2DoorOtherWrap", !!type && $("v2Door").value === OTHER_VALUE);
+    showOtherWrap("v2GarageOtherWrap", !!type && $("v2Garage").value === OTHER_VALUE);
+  }
+
   const ALL_SIDING_SCHEMES = SIDING_ONLY_SCHEME_DETAILS.map(item => item.id);
   const BRICK_SCHEMES = MASONRY_SIDING_OPTIONS.map(color => "M:" + color);
 
@@ -2941,6 +3015,8 @@ const fields = {
       $("v2Garage").value = "";
       $("v2Shutters").value = "";
       $("v2MasonryTrim").value = "";
+      ["v2BrickOther","v2SchemeOther","v2OtherTrim","v2OtherShutters","v2MasonryTrimOther","v2DoorOther","v2GarageOther"].forEach(id => { if($(id)) $(id).value = ""; });
+      updateOtherFields();
 
       if(type !== "brick"){
         $("v2Brick").value = "";
@@ -3012,6 +3088,10 @@ const fields = {
         opt.textContent = color;
         scheme.appendChild(opt);
       });
+      const other = document.createElement("option");
+      other.value = OTHER_VALUE;
+      other.textContent = "OTHER — Enter Legacy Siding Color";
+      scheme.appendChild(other);
     }
     else if(type === "all-siding"){
       SIDING_ONLY_SCHEME_DETAILS.forEach(item => {
@@ -3020,6 +3100,10 @@ const fields = {
         opt.textContent = item.label + " · Trim " + item.trim + " · Shutters " + item.shutters;
         scheme.appendChild(opt);
       });
+      const other = document.createElement("option");
+      other.value = OTHER_VALUE;
+      other.textContent = "OTHER — Enter Legacy Paint Scheme";
+      scheme.appendChild(other);
     }
 
     scheme.disabled = !type;
@@ -3048,21 +3132,27 @@ const fields = {
   }
 
   function updateSchemeColorSummary(){
-    const colors = fixedColorsForCurrentScheme();
+    const fixedColors = fixedColorsForCurrentScheme();
+    const colors = fixedColors || {};
     const type = getExteriorType();
     const box = $("v2SchemeSummary");
 
-    if(!colors){
+    const isCustom = $("v2Scheme").value === OTHER_VALUE;
+    if(!fixedColors && !isCustom){
       box.style.display = "none";
       return;
     }
 
     box.style.display = "block";
-    $("v2PrimaryColor").textContent = colors.primary || "—";
-    $("v2SecondaryColor").textContent = colors.secondary || "—";
+    $("v2PrimaryColor").textContent = isCustom
+      ? (($("v2SchemeOther").value || "").trim() || "—")
+      : (colors.primary || "—");
+    $("v2SecondaryColor").textContent = isCustom ? "—" : (colors.secondary || "—");
     $("v2TrimColor").textContent = type === "brick"
-      ? ($("v2MasonryTrim").value || "—")
-      : (colors.trim || "—");
+      ? (actualOtherValue("v2MasonryTrim","v2MasonryTrimOther") || "—")
+      : isCustom
+        ? (($("v2OtherTrim").value || "").trim() || "—")
+        : (colors.trim || "—");
     $("v2FasciaColor").textContent = "—";
     $("v2SecondaryColorRow").style.display =
       type === "all-siding" && colors.secondary ? "grid" : "none";
@@ -3071,7 +3161,9 @@ const fields = {
     const shutterValue = $("v2FixedShutterColor");
     if(shutterRow && shutterValue){
       shutterRow.style.display = type === "all-siding" ? "grid" : "none";
-      shutterValue.textContent = colors.shutters || "—";
+      shutterValue.textContent = isCustom
+        ? (($("v2OtherShutters").value || "").trim() || "—")
+        : (colors.shutters || "—");
     }
   }
 
@@ -3089,6 +3181,13 @@ const fields = {
       opt.textContent = color;
       select.appendChild(opt);
     });
+
+    if((values || []).length){
+      const other = document.createElement("option");
+      other.value = OTHER_VALUE;
+      other.textContent = "OTHER — Enter Legacy Color";
+      select.appendChild(other);
+    }
 
     if(selectedValue && uniqueColors(values).includes(selectedValue)){
       select.value = selectedValue;
@@ -3710,24 +3809,46 @@ const fields = {
       out.elevation
     );
 
-    if(out.exteriorType === "all-siding"){
+    // Resolve OTHER selections to the actual legacy value typed by the user.
+    if(out.exteriorType === "brick"){
+      out.brick = actualOtherValue("v2Brick","v2BrickOther");
+      const sidingValue = actualOtherValue("v2Scheme","v2SchemeOther");
+      out.scheme = sidingValue ? "M:" + sidingValue.replace(/^M:/,"") : "";
+      out.masonryTrim = actualOtherValue("v2MasonryTrim","v2MasonryTrimOther");
+    } else {
       out.brick = "";
+      if($("v2Scheme").value === OTHER_VALUE){
+        const customScheme = ($("v2SchemeOther").value || "").trim();
+        out.scheme = customScheme ? CUSTOM_SCHEME_PREFIX + customScheme : "";
+      }
     }
+
+    out.door = actualOtherValue("v2Door","v2DoorOther");
+    out.garage = actualOtherValue("v2Garage","v2GarageOther");
 
     const fixed =
     SCHEME_FIXED_COLORS[out.scheme] || {};
 
-    out.primaryColor = fixed.primary || "";
+    const customSidingOnly = out.exteriorType === "all-siding" && out.scheme.startsWith(CUSTOM_SCHEME_PREFIX);
+    out.primaryColor = customSidingOnly
+      ? out.scheme.slice(CUSTOM_SCHEME_PREFIX.length)
+      : (out.exteriorType === "brick"
+          ? out.scheme.replace(/^M:/,"")
+          : (fixed.primary || ""));
     out.secondaryColor =
-      out.exteriorType === "all-siding"
+      out.exteriorType === "all-siding" && !customSidingOnly
       ? (fixed.secondary || "")
       : "";
     out.trimColor = out.exteriorType === "brick"
       ? (out.masonryTrim || "")
-      : (fixed.trim || "");
+      : customSidingOnly
+        ? (($("v2OtherTrim").value || "").trim())
+        : (fixed.trim || "");
     out.fasciaColor = "";
     out.shutters = out.exteriorType === "all-siding"
-      ? (fixed.shutters || out.shutters || "")
+      ? (customSidingOnly
+          ? (($("v2OtherShutters").value || "").trim())
+          : (fixed.shutters || out.shutters || ""))
       : "";
 
     return out;
@@ -3773,17 +3894,63 @@ const fields = {
     renderExteriorTypeUI();
 
     if(type === "brick"){
-      $("v2Brick").value = d.brick || "";
+      const masonryNames = Array.from($("v2Brick").options).map(o => o.value).filter(v => v && v !== OTHER_VALUE);
+      setSelectWithOther("v2Brick","v2BrickOther",d.brick || "",masonryNames);
     } else {
       $("v2Brick").value = "";
+      $("v2BrickOther").value = "";
     }
 
-    populateSchemeOptions(d.scheme || "");
+    if(type === "brick"){
+      const savedSiding = String(d.scheme || "").replace(/^M:/,"");
+      populateSchemeOptions("M:" + savedSiding);
+      if(savedSiding && !MASONRY_SIDING_OPTIONS.includes(savedSiding)){
+        $("v2Scheme").value = OTHER_VALUE;
+        $("v2SchemeOther").value = savedSiding;
+      } else {
+        $("v2SchemeOther").value = "";
+      }
+    } else {
+      populateSchemeOptions(d.scheme || "");
+      if(String(d.scheme || "").startsWith(CUSTOM_SCHEME_PREFIX)){
+        $("v2Scheme").value = OTHER_VALUE;
+        $("v2SchemeOther").value = String(d.scheme).slice(CUSTOM_SCHEME_PREFIX.length);
+        $("v2OtherTrim").value = d.trimColor || "";
+        $("v2OtherShutters").value = d.shutters || "";
+      } else {
+        $("v2SchemeOther").value = "";
+        $("v2OtherTrim").value = "";
+        $("v2OtherShutters").value = "";
+      }
+    }
+
     populateMasonryTrimOptions(d.masonryTrim || d.trimColor || "");
-    updateSchemeColorSummary();
+    if(type === "brick" && (d.masonryTrim || d.trimColor) && !MASONRY_TRIM_OPTIONS.includes(d.masonryTrim || d.trimColor)){
+      $("v2MasonryTrim").value = OTHER_VALUE;
+      $("v2MasonryTrimOther").value = d.masonryTrim || d.trimColor || "";
+    } else {
+      $("v2MasonryTrimOther").value = "";
+    }
+
     populateDoorOptions(d.door || "");
+    if(d.door && !FRONT_DOOR_COLORS.includes(d.door)){
+      $("v2Door").value = OTHER_VALUE;
+      $("v2DoorOther").value = d.door;
+    } else {
+      $("v2DoorOther").value = "";
+    }
+
     populateGarageOptions(d.garage || "");
+    if(d.garage && !GARAGE_DOOR_COLORS.includes(d.garage)){
+      $("v2Garage").value = OTHER_VALUE;
+      $("v2GarageOther").value = d.garage;
+    } else {
+      $("v2GarageOther").value = "";
+    }
+
     populateShutterOptions(d.shutters || "");
+    updateOtherFields();
+    updateSchemeColorSummary();
   }
 
 
@@ -5692,6 +5859,11 @@ function labelHTML(id, d) {
       if(!String(form.masonryTrim || "").trim()) missing.push("Trim");
     }
 
+    if(form.exteriorType === "all-siding" && String(form.scheme || "").startsWith(CUSTOM_SCHEME_PREFIX)){
+      if(!String(form.trimColor || "").trim()) missing.push("Trim Color");
+      if(!String(form.shutters || "").trim()) missing.push("Shutter Color");
+    }
+
     return missing;
   }
 
@@ -5936,11 +6108,25 @@ function labelHTML(id, d) {
   );
 
 
+  $("v2Brick")
+  .addEventListener(
+    "change",
+    () => {
+      updateOtherFields();
+      if(selected && !formIsLocked()){
+        previewFromForm();
+        checkConflicts(true);
+      }
+    }
+  );
+
+
   $("v2Scheme")
   .addEventListener(
     "change",
     () => {
 
+      updateOtherFields();
       updateSchemeColorSummary();
       populateShutterOptions();
 
@@ -5959,6 +6145,7 @@ function labelHTML(id, d) {
   .addEventListener(
     "change",
     () => {
+      updateOtherFields();
       updateSchemeColorSummary();
       if(selected && !formIsLocked()){
         previewFromForm();
@@ -5972,6 +6159,7 @@ function labelHTML(id, d) {
   .addEventListener(
     "change",
     () => {
+      updateOtherFields();
       if(selected && !formIsLocked()){
         previewFromForm();
         checkConflicts(true);
@@ -5983,12 +6171,29 @@ function labelHTML(id, d) {
   .addEventListener(
     "change",
     () => {
+      updateOtherFields();
       if(selected && !formIsLocked()){
         previewFromForm();
         checkConflicts(true);
       }
     }
   );
+
+  [
+    "v2BrickOther","v2SchemeOther","v2OtherTrim","v2OtherShutters",
+    "v2MasonryTrimOther","v2DoorOther","v2GarageOther"
+  ].forEach(id => {
+    const input = $(id);
+    if(!input) return;
+    input.addEventListener("input", () => {
+      updateSchemeColorSummary();
+      if(selected && !formIsLocked()){
+        previewFromForm();
+        checkConflicts(true);
+      }
+    });
+  });
+
 
   $("v2Shutters")
   .addEventListener(
