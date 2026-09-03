@@ -2334,12 +2334,8 @@ label.v2-label-conflict{
       <span class="v2-test-chip">CURRENT SELECTION</span>
     </div>
     <div class="v2-color-row">
-      <span>Primary Siding</span>
+      <span>Siding</span>
       <span id="v2PrimaryColor">—</span>
-    </div>
-    <div class="v2-color-row" id="v2SecondaryColorRow">
-      <span>Secondary Siding</span>
-      <span id="v2SecondaryColor">—</span>
     </div>
     <div class="v2-color-row">
       <span>Trim / Soffit / Columns</span>
@@ -2400,13 +2396,8 @@ label.v2-label-conflict{
       </div>
 
       <div class="v2-exterior-summary-item">
-        <span class="v2-exterior-summary-label">Primary Siding</span>
+        <span class="v2-exterior-summary-label">Siding</span>
         <span class="v2-exterior-summary-value" id="v2ExteriorSummaryPrimary">—</span>
-      </div>
-
-      <div class="v2-exterior-summary-item" id="v2ExteriorSummarySecondaryItem">
-        <span class="v2-exterior-summary-label">Secondary Siding</span>
-        <span class="v2-exterior-summary-value" id="v2ExteriorSummarySecondary">—</span>
       </div>
 
       <div class="v2-exterior-summary-item">
@@ -2838,22 +2829,22 @@ const fields = {
   ];
 
   const SIDING_ONLY_SCHEME_DETAILS = [
-    {id:"SO01", label:"Alabaster", primary:"Alabaster", secondary:"Pure White", trim:"Iron Ore", shutters:"Iron Ore"},
-    {id:"SO02", label:"Alabaster", primary:"Alabaster", secondary:"Iron Ore", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO03", label:"Alabaster", primary:"Alabaster", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO04", label:"Gauntlet Gray", primary:"Gauntlet Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO05", label:"Peppercorn", primary:"Peppercorn", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO06", label:"Homburg Gray", primary:"Homburg Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO07", label:"Naval", primary:"Naval", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO08", label:"Pewter Green", primary:"Pewter Green", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO09", label:"Grays Harbor", primary:"Grays Harbor", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO10", label:"Sycamore Tan", primary:"Sycamore Tan", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO11", label:"Tony Taupe", primary:"Tony Taupe", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO12", label:"Drift of Mist", primary:"Drift of Mist", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO13", label:"Agreeable Gray", primary:"Agreeable Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO14", label:"Gray Clouds", primary:"Gray Clouds", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO15", label:"Dorian Gray", primary:"Dorian Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO16", label:"Acier", primary:"Acier", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"}
+    {id:"SO01", label:"Alabaster", primary:"Alabaster", trim:"Iron Ore", shutters:"Iron Ore"},
+    {id:"SO02", label:"Alabaster", primary:"Alabaster", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO03", label:"Alabaster", primary:"Alabaster", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO04", label:"Gauntlet Gray", primary:"Gauntlet Gray", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO05", label:"Peppercorn", primary:"Peppercorn", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO06", label:"Homburg Gray", primary:"Homburg Gray", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO07", label:"Naval", primary:"Naval", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO08", label:"Pewter Green", primary:"Pewter Green", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO09", label:"Grays Harbor", primary:"Grays Harbor", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO10", label:"Sycamore Tan", primary:"Sycamore Tan", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO11", label:"Tony Taupe", primary:"Tony Taupe", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO12", label:"Drift of Mist", primary:"Drift of Mist", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO13", label:"Agreeable Gray", primary:"Agreeable Gray", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO14", label:"Gray Clouds", primary:"Gray Clouds", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO15", label:"Dorian Gray", primary:"Dorian Gray", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO16", label:"Acier", primary:"Acier", trim:"Pure White", shutters:"Pure White"}
   ];
 
   const FRONT_DOOR_COLORS = [
@@ -2928,7 +2919,6 @@ const fields = {
   SIDING_ONLY_SCHEME_DETAILS.forEach(item => {
     SCHEME_FIXED_COLORS[item.id] = {
       primary:item.primary,
-      secondary:item.secondary,
       trim:item.trim,
       fascia:"",
       shutters:item.shutters,
@@ -3167,15 +3157,12 @@ const fields = {
     $("v2PrimaryColor").textContent = isCustom
       ? (($("v2SchemeOther").value || "").trim() || "—")
       : (colors.primary || "—");
-    $("v2SecondaryColor").textContent = isCustom ? "—" : (colors.secondary || "—");
     $("v2TrimColor").textContent = type === "brick"
       ? (actualOtherValue("v2MasonryTrim","v2MasonryTrimOther") || "—")
       : isCustom
         ? (($("v2OtherTrim").value || "").trim() || "—")
         : (colors.trim || "—");
     $("v2FasciaColor").textContent = "—";
-    $("v2SecondaryColorRow").style.display =
-      type === "all-siding" && colors.secondary ? "grid" : "none";
 
     const shutterRow = $("v2FixedShutterColorRow");
     const shutterValue = $("v2FixedShutterColor");
@@ -4237,9 +4224,6 @@ const fields = {
     $("v2ExteriorSummaryPrimary").textContent =
       fixedExteriorColors.primary || "—";
 
-    $("v2ExteriorSummarySecondary").textContent =
-      fixedExteriorColors.secondary || "—";
-
     $("v2ExteriorSummaryTrim").textContent =
       (savedExteriorType === "brick"
         ? (savedExteriorData.masonryTrim || savedExteriorData.trimColor || "—")
@@ -4259,11 +4243,6 @@ const fields = {
 
     $("v2ExteriorSummaryBrickItem").style.display =
       savedExteriorType === "brick"
-        ? "block"
-        : "none";
-
-    $("v2ExteriorSummarySecondaryItem").style.display =
-      savedExteriorType === "all-siding"
         ? "block"
         : "none";
 
@@ -7884,10 +7863,6 @@ function labelHTML(id, d) {
       type === "all-siding" ? "Siding" : "Primary Siding",
       fixed.primary || d.primaryColor || ""
     ));
-
-    if(type === "all-siding" && (fixed.secondary || d.secondaryColor)){
-      cards.push(pdfColorCard("Secondary Siding", fixed.secondary || d.secondaryColor || ""));
-    }
 
     cards.push(pdfColorCard(
       "Trim / Soffits / Columns",
