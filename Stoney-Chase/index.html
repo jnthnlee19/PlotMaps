@@ -2862,7 +2862,7 @@ const fields = {
   ];
 
   const GARAGE_DOOR_COLORS = [
-    "Match Siding","Iron Ore","Black Fox","Alabaster","Pure White"
+    "Iron Ore","Black Fox","Alabaster","Pure White"
   ];
 
   const OTHER_VALUE = "__OTHER__";
@@ -2936,15 +2936,35 @@ const fields = {
     };
   });
 
-  // Masonry images can be added later using this shared path + naming format:
-  // ../Assets/masonry/grey-fog.png, ../Assets/masonry/cibolo-trail.png, etc.
-  function masonryImagePath(name){
-    const slug = String(name || "")
+  // =========================================================
+  // SHARED ASSET LIBRARY
+  // Uses the SAME root-level folders as Adelton and future communities.
+  //
+  // From /Stoney-Chase/index.html:
+  //   ../Assets/elevations/1360-A.png
+  //   ../Assets/masonry/grey-fog.png
+  // =========================================================
+  const SHARED_ASSET_ROOT = "../Assets";
+
+  function assetSlug(name){
+    return String(name || "")
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g,"-")
       .replace(/^-+|-+$/g,"");
-    return slug ? "../Assets/masonry/" + slug + ".png" : "";
+  }
+
+  function masonryImagePath(name){
+    const slug = assetSlug(name);
+    return slug ? SHARED_ASSET_ROOT + "/masonry/" + slug + ".png" : "";
+  }
+
+  function elevationImagePath(plan, elevation){
+    const p = String(plan || "").trim();
+    const e = String(elevation || "").trim().toUpperCase();
+    return p && e
+      ? SHARED_ASSET_ROOT + "/elevations/" + p + "-" + e + ".png"
+      : "";
   }
 
   function getExteriorType(){
@@ -3210,18 +3230,82 @@ const fields = {
     door.disabled = !type;
   }
 
+  function garageMatchSidingColor(){
+    const type = getExteriorType();
+
+    if(type === "brick"){
+      if($("v2Scheme").value === OTHER_VALUE){
+        return ($("v2SchemeOther").value || "").trim();
+      }
+
+      const fixed = fixedColorsForCurrentScheme() || {};
+      return (fixed.primary || "").trim();
+    }
+
+    if(type === "all-siding"){
+      if($("v2Scheme").value === OTHER_VALUE){
+        return ($("v2SchemeOther").value || "").trim();
+      }
+
+      const fixed = fixedColorsForCurrentScheme() || {};
+      return (fixed.primary || "").trim();
+    }
+
+    return "";
+  }
+
   function populateGarageOptions(selectedValue=""){
     const type = getExteriorType();
     const garage = $("v2Garage");
+    const currentValue = String(selectedValue || garage.value || "").trim();
 
-    fillColorSelect(
-      garage,
-      type ? GARAGE_DOOR_COLORS : [],
-      selectedValue,
-      type ? "Select Garage Door Color" : "Choose Elevation First"
-    );
+    garage.innerHTML = "";
+
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = type ? "Select Garage Door Color" : "Choose Elevation First";
+    garage.appendChild(first);
+
+    if(type){
+      GARAGE_DOOR_COLORS.forEach(color => {
+        const opt = document.createElement("option");
+        opt.value = color;
+        opt.textContent = color;
+        garage.appendChild(opt);
+      });
+
+      const sidingColor = garageMatchSidingColor();
+      if(sidingColor){
+        const match = document.createElement("option");
+        match.value = sidingColor;
+        match.textContent = "Match Siding — " + sidingColor;
+        garage.appendChild(match);
+      }
+
+      const other = document.createElement("option");
+      other.value = OTHER_VALUE;
+      other.textContent = "OTHER — Enter Legacy Color";
+      garage.appendChild(other);
+    }
 
     garage.disabled = !type;
+
+    if(currentValue){
+      const standardOrMatch = Array.from(garage.options).some(
+        o => o.value === currentValue && o.value !== OTHER_VALUE
+      );
+
+      if(standardOrMatch){
+        garage.value = currentValue;
+      } else {
+        garage.value = OTHER_VALUE;
+        if($("v2GarageOther")) $("v2GarageOther").value = currentValue;
+      }
+    } else {
+      garage.value = "";
+    }
+
+    updateOtherFields();
   }
 
   function populateShutterOptions(selectedValue=""){
@@ -3941,7 +4025,8 @@ const fields = {
     }
 
     populateGarageOptions(d.garage || "");
-    if(d.garage && !GARAGE_DOOR_COLORS.includes(d.garage)){
+    const currentGarageOptions = Array.from($("v2Garage").options).map(o => o.value);
+    if(d.garage && !currentGarageOptions.includes(d.garage)){
       $("v2Garage").value = OTHER_VALUE;
       $("v2GarageOther").value = d.garage;
     } else {
@@ -6129,6 +6214,7 @@ function labelHTML(id, d) {
       updateOtherFields();
       updateSchemeColorSummary();
       populateShutterOptions();
+      populateGarageOptions();
 
       if(
         selected &&
@@ -6187,6 +6273,14 @@ function labelHTML(id, d) {
     if(!input) return;
     input.addEventListener("input", () => {
       updateSchemeColorSummary();
+
+      if(id === "v2SchemeOther"){
+        const savedGarage = $("v2Garage").value === OTHER_VALUE
+          ? (($("v2GarageOther").value || "").trim())
+          : $("v2Garage").value;
+        populateGarageOptions(savedGarage);
+      }
+
       if(selected && !formIsLocked()){
         previewFromForm();
         checkConflicts(true);
@@ -7654,39 +7748,69 @@ function labelHTML(id, d) {
   }
 
 
-  /* Screen/PDF swatches are representative only.
-     Add or refine hex values here as desired. */
+  /* =========================================================
+     STONEY CHASE / STANDARD AUSTIN PDF COLOR DIRECTORY
+     Keys below match the ACTUAL values saved by this map.
+     Screen/PDF colors remain representative; physical samples govern.
+     ========================================================= */
   const PDF_COLOR_HEX = {
-    "SW 7006 Extra White":"#EEEDE7",
-    "SW 6258 Tricorn Black":"#2F2F30",
-    "SW 9140 Blustery Sky":"#6F8793",
-    "SW 7615 Sea Serpent":"#3E4B50",
-    "SW 6866 Heartthrob":"#AD3938",
+    "Alabaster":"#EDEAE0",
+    "Canvas Tan":"#DCD1BF",
+    "Shiitake":"#C8BCAB",
+    "Balanced Beige":"#C0B2A2",
+    "Tony Taupe":"#B1A290",
+    "Sycamore Tan":"#9C8A79",
+    "Agreeable Gray":"#D1CBC1",
+    "Gray Clouds":"#B7B7B2",
+    "Dorian Gray":"#ACA79E",
+    "Acier":"#9E9991",
+
+    "Pure White":"#EDECE6",
+    "Iron Ore":"#434341",
+    "Black Fox":"#4F4842",
+
+    "Gauntlet Gray":"#78736E",
+    "Peppercorn":"#585858",
+    "Homburg Gray":"#666D69",
+    "Naval":"#2F3D4C",
+    "Pewter Green":"#5E6259",
+    "Grays Harbor":"#596368",
+    "Drift of Mist":"#DCD8D0",
+
+    "Fireweed":"#7B3730",
+    "Pennywise":"#A2583A",
+    "Dark Night":"#23383F",
+    "Ripe Olive":"#44483D",
+
+    /* Stained finish rather than a standard SW wall-paint swatch.
+       Representative dark ebony is used for the printable PDF. */
+    "Stained Ebony Gloss":"#302A26",
+
+    /* Keep common SW-coded aliases so older saved records still render. */
     "SW 7008 Alabaster":"#EDEAE0",
-    "SW 7023 Requisite Gray":"#B9B2A9",
-    "SW 7019 Gauntlet Gray":"#78736E",
-    "SW 7037 Balanced Beige":"#C1B2A0",
-    "SW 7622 Homburg Gray":"#666B64",
-    "SW 7022 Natural Choice":"#E3DED0",
-    "SW 7020 Black Fox":"#4F4842",
-    "SW 9130 Evergreen Fog":"#95978A",
-    "SW 7036 Accessible Beige":"#D1C7B8",
-    "SW 7042 Shoji White":"#E6DFD3",
-    "SW 7069 Iron Ore":"#434341",
-    "SW 7674 Peppercorn":"#585858",
-    "SW Light French Gray":"#C2C0BB",
-    "SW 9166 Drift of Mist":"#DCD8D0",
+    "SW 7531 Canvas Tan":"#DCD1BF",
+    "SW 9173 Shiitake":"#C8BCAB",
+    "SW 7037 Balanced Beige":"#C0B2A2",
+    "SW 7038 Tony Taupe":"#B1A290",
+    "SW 2855 Sycamore Tan":"#9C8A79",
+    "SW 7029 Agreeable Gray":"#D1CBC1",
+    "SW 7658 Gray Clouds":"#B7B7B2",
+    "SW 7017 Dorian Gray":"#ACA79E",
+    "SW 9170 Acier":"#9E9991",
     "SW 7005 Pure White":"#EDECE6",
-    "SW 6208 Pewter Green":"#5E6259",
-    "SW Red Barn 7591":"#7C453D",
+    "SW 7069 Iron Ore":"#434341",
+    "SW 7020 Black Fox":"#4F4842",
+    "SW 7019 Gauntlet Gray":"#78736E",
+    "SW 7674 Peppercorn":"#585858",
+    "SW 7622 Homburg Gray":"#666D69",
     "SW 6244 Naval":"#2F3D4C",
-    "SW 6209 Ripe Olive":"#44483D",
-    "SW 7048 Urbane Bronze":"#54504A",
-    "SW 7048 Urban Bronze":"#54504A",
-    "SW 7600 Bolero":"#903934",
-    "SW 6237 Dark Night":"#23383E",
-    "SW 6188 Shade-Grown":"#4C5147",
-    "SW Turkish Coffee":"#4A382B"
+    "SW 6208 Pewter Green":"#5E6259",
+    "SW 6236 Grays Harbor":"#596368",
+    "SW 9166 Drift of Mist":"#DCD8D0",
+    "SW 6328 Fireweed":"#7B3730",
+    "SW 6349 Pennywise":"#A2583A",
+    "SW 6237 Dark Night":"#23383F",
+    "SW 6209 Ripe Olive":"#44483D"
   };
 
   function pdfSwatchHex(color){
@@ -7779,6 +7903,9 @@ function labelHTML(id, d) {
       const option = Array.from($("v2Brick").options).find(o => o.value === d.brick);
       brickName = option ? option.textContent : d.brick;
     }
+
+    const elevationImage = elevationImagePath(d.plan, d.elevation);
+    const masonryImage = brickName ? masonryImagePath(brickName) : "";
 
     const lotBlock = plot.lot
       ? "Lot " + plot.lot + (plot.tract ? " / Block " + plot.tract : "")
@@ -7874,6 +8001,50 @@ function labelHTML(id, d) {
     color:#242424;
   }
   .pdf-info-value.large{font-size:14px}
+
+  .pdf-visuals{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .pdf-visual-card{
+    position:relative;
+    min-height:150px;
+    border:1px solid #dfd8d0;
+    border-radius:12px;
+    overflow:hidden;
+    background:#eee9e2;
+  }
+  .pdf-visual-card img{
+    display:block;
+    width:100%;
+    height:180px;
+    object-fit:contain;
+    background:#fff;
+  }
+  .pdf-visual-card.masonry img{
+    object-fit:cover;
+  }
+  .pdf-visual-label{
+    padding:7px 10px;
+    background:#eee9e2;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+  }
+  .pdf-visual-fallback{
+    height:180px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+    text-align:center;
+    color:#7b756f;
+    font-size:8px;
+    background:#f3efe9;
+  }
 
   .pdf-section-head{
     display:flex;
@@ -8006,6 +8177,39 @@ function labelHTML(id, d) {
       <div class="pdf-info-label">Elevation</div>
       <div class="pdf-info-value large">${esc(d.elevation || "—")}</div>
     </div>
+  </div>
+
+  <div class="pdf-visuals">
+    <div class="pdf-visual-card">
+      ${elevationImage ? `
+        <img
+          src="${esc(elevationImage)}"
+          alt="${esc((d.plan || "") + " " + (d.elevation || ""))}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="pdf-visual-fallback" style="display:none">
+          Elevation image not added yet<br>${esc(d.plan || "")}-${esc(d.elevation || "")}.png
+        </div>` : `
+        <div class="pdf-visual-fallback">Elevation image not available.</div>`}
+      <div class="pdf-visual-label">Plan ${esc(d.plan || "—")} · Elevation ${esc(d.elevation || "—")}</div>
+    </div>
+
+    ${type === "brick" ? `
+      <div class="pdf-visual-card masonry">
+        ${masonryImage ? `
+          <img
+            src="${esc(masonryImage)}"
+            alt="${esc(brickName)}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="pdf-visual-fallback" style="display:none">
+            Masonry image not added yet
+          </div>` : `
+          <div class="pdf-visual-fallback">Masonry image not available.</div>`}
+        <div class="pdf-visual-label">${esc(brickName || "Masonry")}</div>
+      </div>` : `
+      <div class="pdf-visual-card">
+        <div class="pdf-visual-fallback">Siding Only</div>
+        <div class="pdf-visual-label">Exterior Type</div>
+      </div>`}
   </div>
 
   <div class="pdf-section-head">
