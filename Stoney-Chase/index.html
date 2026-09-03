@@ -1905,7 +1905,7 @@ label.v2-label-conflict{
   // LIVE SHARED MODE
   // Uses the existing Netlify Blobs endpoint and ETag protection.
   // =========================================================
-  const LOCAL_TEST_MODE = true;
+  const LOCAL_TEST_MODE = false;
 
   const mapstage =
   document.querySelector(".mapstage");
@@ -3177,7 +3177,7 @@ const fields = {
 
     const response =
     await fetch(
-      "/.netlify/functions/adelton-state",
+      "/.netlify/functions/stoney-chase-state",
       {
         method:"POST",
         headers:{
@@ -3256,7 +3256,7 @@ const fields = {
 
     const response =
     await fetch(
-      "/.netlify/functions/adelton-state?id=" +
+      "/.netlify/functions/stoney-chase-state?id=" +
       encodeURIComponent(id),
       {
         method:"GET",
@@ -3408,7 +3408,7 @@ const fields = {
 
       const response =
       await fetch(
-        "/.netlify/functions/adelton-state",
+        "/.netlify/functions/stoney-chase-state",
         {
           method:"GET",
           cache:"no-store"
