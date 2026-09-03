@@ -2938,11 +2938,11 @@ const fields = {
 
   // =========================================================
   // SHARED ASSET LIBRARY
-  // Uses the SAME root-level folders as Adelton and future communities.
+  // Uses the SAME root-level image folder as Adelton and future communities.
   //
   // From /Stoney-Chase/index.html:
   //   ../Assets/elevations/1360-A.png
-  //   ../Assets/masonry/grey-fog.png
+  //   ../Assets/elevations/mocha-brown-antique.png
   // =========================================================
   const SHARED_ASSET_ROOT = "../Assets";
 
@@ -2956,7 +2956,7 @@ const fields = {
 
   function masonryImagePath(name){
     const slug = assetSlug(name);
-    return slug ? SHARED_ASSET_ROOT + "/masonry/" + slug + ".png" : "";
+    return slug ? SHARED_ASSET_ROOT + "/elevations/" + slug + ".png" : "";
   }
 
   function elevationImagePath(plan, elevation){
