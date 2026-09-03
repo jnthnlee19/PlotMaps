@@ -2170,30 +2170,34 @@ label.v2-label-conflict{
       <div>
         <label for="v2Plan">House Plan *</label>
         <select id="v2Plan">
-          <!-- HOUSE PLAN OPTIONS - TYPE YOUR ACTUAL PLANS HERE -->
+          <!-- STONEY CHASE HOUSE PLANS -->
           <option value="">Select Plan</option>
-          <option value="1676">1676</option>
-          <option value="1793">1793</option>
-          <option value="1965">1965</option>
-          <option value="2382">2382</option>
-          <option value="2444">2444</option>
-          <option value="2501">2501</option>
-          <option value="2824">2824</option>
-          <option value="2881">2881</option>
-          <option value="2967">2967</option>
-          <option value="3475">3475</option>
+          <option value="1360">1360</option>
+          <option value="1548">1548</option>
+          <option value="1655">1655</option>
+          <option value="1702">1702</option>
+          <option value="1780">1780</option>
+          <option value="1891">1891</option>
+          <option value="2070">2070</option>
+          <option value="2245">2245</option>
+          <option value="2410">2410</option>
+          <option value="2458">2458</option>
+          <option value="2509">2509</option>
+          <option value="2566">2566</option>
+          <option value="2708">2708</option>
+          <option value="2897">2897</option>
         </select>
       </div>
 
       <div>
         <label for="v2Elevation">Elevation *</label>
         <select id="v2Elevation">
-          <!-- ELEVATION OPTIONS - TYPE YOUR ACTUAL ELEVATIONS HERE -->
+          <!-- STONEY CHASE ELEVATIONS: A/B/C = MASONRY, R = SIDING ONLY -->
           <option value="">Select Elevation</option>
+          <option value="A">A</option>
           <option value="B">B</option>
-          <option value="S">S</option>
-          <option value="V">V</option>
-          <option value="X">X</option>
+          <option value="C">C</option>
+          <option value="R">R</option>
         </select>
       </div>
     </div>
@@ -2246,35 +2250,67 @@ label.v2-label-conflict{
   <div class="v2-exterior-fields" id="v2ExteriorFields">
 
   <div id="v2BrickWrap" style="display:none">
-    <label for="v2Brick">Brick *</label>
+    <label for="v2Brick">Masonry *</label>
     <select id="v2Brick">
-      <!-- BRICK OPTIONS - TYPE YOUR ACTUAL BRICK NAMES HERE -->
-      <option value="">Select Brick</option>
-      <option value="Brick 1">Adobe Wells</option>
-      <option value="Brick 2">Sonoran Desert</option>
-      <option value="Brick 3">Stone Bay</option>
-      <option value="Brick 4">Grey Fog</option>
-      <option value="Brick 5">Cibolo Trail</option>
-      <option value="Brick 6">Mocha Brown Antique</option>
-      <option value="Brick 7">Old Fancisco</option>
-      <option value="Brick 8">White Birch</option>
-      <option value="Brick 9">Cottonwood</option>
-      <option value="Brick 10">Frostwood</option>
-      <option value="Brick 11">STONE ONLY - Cream Stone</option>
-      <option value="Brick 12">STONE ONLY - Texas Mix</option>
-      <option value="Brick 13">STONE ONLY - Smokey Mountain</option>
+      <option value="">Select Masonry</option>
+      <optgroup label="Group 3">
+        <option value="Grey Fog">Grey Fog</option>
+        <option value="Cibolo Trail">Cibolo Trail</option>
+        <option value="Stone Bay">Stone Bay</option>
+        <option value="Fall Creek">Fall Creek</option>
+        <option value="Sonoran Desert">Sonoran Desert</option>
+        <option value="Old Francisco">Old Francisco</option>
+        <option value="Adobe Wells">Adobe Wells</option>
+        <option value="Mocha Brown Antique">Mocha Brown Antique</option>
+      </optgroup>
+      <optgroup label="Group 1">
+        <option value="Winterfield">Winterfield</option>
+        <option value="Rochester">Rochester</option>
+        <option value="Saxon">Saxon</option>
+        <option value="Marble">Marble</option>
+        <option value="Carlton">Carlton</option>
+        <option value="Urbaba Antique">Urbaba Antique</option>
+        <option value="Wood Creek">Wood Creek</option>
+        <option value="Green Hollow">Green Hollow</option>
+      </optgroup>
+      <optgroup label="Group 4">
+        <option value="White Burch">White Burch</option>
+        <option value="Frostwood">Frostwood</option>
+        <option value="Cottonwood">Cottonwood</option>
+      </optgroup>
+      <optgroup label="Group 5">
+        <option value="Smokey River">Smokey River</option>
+        <option value="Porter">Porter</option>
+        <option value="Grand Isle">Grand Isle</option>
+        <option value="Castle Rock">Castle Rock</option>
+        <option value="Nocona">Nocona</option>
+        <option value="Jefferson Park">Jefferson Park</option>
+        <option value="Grayson">Grayson</option>
+      </optgroup>
+      <optgroup label="Stone">
+        <option value="Cream Stone">Cream Stone</option>
+        <option value="Texas Mix">Texas Mix</option>
+        <option value="Smokey Mountain">Smokey Mountain</option>
+      </optgroup>
     </select>
   </div>
 
-  <label for="v2Scheme">Scheme *</label>
+  <label for="v2Scheme" id="v2SchemeLabel">Siding *</label>
   <select id="v2Scheme" disabled>
     <option value="">Save Home First</option>
   </select>
 
+  <div id="v2MasonryTrimWrap" style="display:none">
+    <label for="v2MasonryTrim">Trim *</label>
+    <select id="v2MasonryTrim" disabled>
+      <option value="">Select Trim</option>
+    </select>
+  </div>
+
   <div class="v2-scheme-summary" id="v2SchemeSummary" style="display:none">
     <div class="v2-scheme-summary-head">
-      <span>Scheme Colors</span>
-      <span class="v2-test-chip">SET BY SCHEME</span>
+      <span>Exterior Colors</span>
+      <span class="v2-test-chip">CURRENT SELECTION</span>
     </div>
     <div class="v2-color-row">
       <span>Primary Siding</span>
@@ -2288,29 +2324,33 @@ label.v2-label-conflict{
       <span>Trim / Soffit / Columns</span>
       <span id="v2TrimColor">—</span>
     </div>
-    <div class="v2-color-row">
+    <div class="v2-color-row" id="v2FasciaColorRow" style="display:none">
       <span>Fascia</span>
       <span id="v2FasciaColor">—</span>
+    </div>
+    <div class="v2-color-row" id="v2FixedShutterColorRow" style="display:none">
+      <span>Shutters</span>
+      <span id="v2FixedShutterColor">—</span>
     </div>
   </div>
 
   <label for="v2Door">Front Door Color *</label>
   <select id="v2Door" disabled>
-    <option value="">Choose Scheme First</option>
+    <option value="">Save Home First</option>
   </select>
 
   <label for="v2Garage">Garage Door Color *</label>
   <select id="v2Garage" disabled>
-    <option value="">Choose Entry Door First</option>
+    <option value="">Save Home First</option>
   </select>
 
-  <label for="v2Shutters">Shutter Color *</label>
-  <select id="v2Shutters" disabled>
-    <option value="">Choose Garage Door First</option>
+  <label for="v2Shutters" id="v2ShuttersLabel" style="display:none">Shutter Color</label>
+  <select id="v2Shutters" disabled style="display:none">
+    <option value="">Set by Siding Scheme</option>
   </select>
 
   <div class="v2-help" style="margin-top:9px">
-    Selection order: Scheme → Entry Door → Garage Door → Shutters.
+    Masonry elevations: choose Masonry, Siding, Trim, Front Door, and Garage Door. Siding-only elevations use a fixed Siding / Trim / Shutter scheme.
   </div>
 
   <div class="v2-stage-actions">
@@ -2321,12 +2361,12 @@ label.v2-label-conflict{
   <div class="v2-exterior-summary" id="v2ExteriorSummary">
     <div class="v2-exterior-summary-grid">
       <div class="v2-exterior-summary-item" id="v2ExteriorSummaryBrickItem">
-        <span class="v2-exterior-summary-label">Brick</span>
+        <span class="v2-exterior-summary-label">Masonry</span>
         <span class="v2-exterior-summary-value" id="v2ExteriorSummaryBrick">—</span>
       </div>
 
       <div class="v2-exterior-summary-item">
-        <span class="v2-exterior-summary-label">Scheme</span>
+        <span class="v2-exterior-summary-label">Siding / Scheme</span>
         <span class="v2-exterior-summary-value" id="v2ExteriorSummaryScheme">—</span>
       </div>
 
@@ -2345,7 +2385,7 @@ label.v2-label-conflict{
         <span class="v2-exterior-summary-value" id="v2ExteriorSummaryTrim">—</span>
       </div>
 
-      <div class="v2-exterior-summary-item">
+      <div class="v2-exterior-summary-item" style="display:none">
         <span class="v2-exterior-summary-label">Fascia</span>
         <span class="v2-exterior-summary-value" id="v2ExteriorSummaryFascia">—</span>
       </div>
@@ -2749,83 +2789,89 @@ const fields = {
   door:'v2Door',
   garage:'v2Garage',
   shutters:'v2Shutters',
-  brick:'v2Brick'
+  brick:'v2Brick',
+  masonryTrim:'v2MasonryTrim'
 };
 
-  const ALL_SIDING_SCHEMES = ["A","B","C","D","E","F","G","H","I","J","K","L"];
-  const BRICK_SCHEMES = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14"];
+  // =========================================================
+  // STONEY CHASE / STANDARD AUSTIN EXTERIOR OPTION LIBRARY
+  // Future communities can reuse this library while changing
+  // only their Plan / Elevation lists as needed.
+  // =========================================================
 
-  const DOOR_COLORS_BY_SCHEME = {
-    "A":["SW 6258 Tricorn Black","SW 9140 Blustery Sky","SW 7615 Sea Serpent","SW 6866 Heartthrob"],
-    "B":["SW 6240 Windy Blue","SW 6237 Dark Night","SW 6606 Corral Reef","SW 9141 Waterloo"],
-    "C":["SW 6209 Ripe Olive","SW 9560 Night Out","SW 6069 French Roast","SW 7588 Show Stopper"],
-    "D":["SW 6181 Secret Garden","SW 6472 Composed","SW 9570 Ironclad","SW Copper Harbor"],
-    "E":["SW 6481 Green Bay","SW 7674 Peppercorn","SW 7600 Bolero","SW 6496 Oceanside"],
-    "F":["SW 7622 Homburg Gray","SW 7592 Crabby Apple","SW 7076 Cyberspace","SW Turkish Coffee"],
-    "G":["SW 6453 Cilantro","SW 6244 Naval","SW 6202 Cast Iron","SW 9015 They call it Mellow"],
-    "H":["SW 6249 Storm Cloud","SW 7041 Van Dyke Brown","SW 6991 Black Swan","SW 6678 Sunflower"],
-    "I":["SW 0064 Blue Peacock","SW 6453 Cilantro","SW 7020 Black Fox","SW 6051 Sashay Sand"],
-    "J":["SW Red Barn 7591","SW 6193 Privaliged green","SW 7514 Foothills","SW 6103 Tea Chest"],
-    "K":["SW 6908 Fun Yellow","SW 6208 Pewter Green","SW 7048 Urban Bronze","SW 7511 Bungalo Brown"],
-    "L":["SW 6451 Nurture Green","SW 7069 Iron Ore","SW 9574 Hulett Ore","SW 6222 Riverway"],
+  const MASONRY_SIDING_OPTIONS = [
+    "Alabaster","Canvas Tan","Shiitake","Balanced Beige","Tony Taupe",
+    "Sycamore Tan","Agreeable Gray","Gray Clouds","Dorian Gray","Acier"
+  ];
 
-    "1":["SW 9140 Blustery Sky","SW 6006 Black Bean","SW 7622 Homburg Gray","SW 7514 Foothills"],
-    "2":["SW 6181 Secret Garden","SW 6069 French Roast","SW 0064 Blue Peacock","SW 6258 Tricorn Black"],
-    "3":["SW 7048 Urbane Bronze","SW 7600 Bolero","SW 6697 Nugget","SW 6237 Dark Night"],
-    "4":["SW 7020 Black Fox","SW 6472 Composed","SW 6222 Riverway","SW 6216 Jasper"],
-    "5":["SW 6244 Naval","SW 7069 Iron Ore","SW 6937 Tantalizing Teal","SW 6666 Enjoyable Yellow"],
-    "6":["SW 6209 Ripe Olive","SW 7083 Darkroom","SW 7076 Cyberspace","SW 6868 Real Red"],
-    "7":["SW 7592 Crabby Apple","SW 6188 Shade-Grown","SW 9148 Smoky Azurite","SW 9130 Evergreen Fog"],
-    "8":["SW 7701 Cavern Clay","SW 6389 Butternut","SW 9559 Scattered Showers","SW 7048 Urban Bronze"],
-    "9":["SW 2816 Rookwood Dark Green","SW 0048 Bunglehouse Blue","SW Turkish Coffee","SW Red Barn 7591"],
-    "10":["SW 7674 Peppercorn","SW 6249 Storm Cloud","SW 6027 Cordovan","SW 9130 Evergreen Fog"],
-    "11":["SW 6389 Butternut","SW 7747 Recycled Glass","SW 9030 Limon Fresco","SW 6339 Persimmon"],
-    "12":["SW 0064 Blue Peacock","SW 6453 Cilantro","SW 7020 Black Fox","SW 6051 Sashay Sand"],
-    "13":["SW 6389 Butternut","SW 7668 March Wind","SW 7076 Cyberspace","SW 6244 Naval"],
-    "14":["SW 9148 Smoky Azurite","SW 7514 Foothills","SW 6193 Privaliged green","SW 7592 Crabby Apple"]
-  };
+  const MASONRY_TRIM_OPTIONS = [
+    "Alabaster","Pure White","Iron Ore","Black Fox"
+  ];
 
-  /* =========================================================
-     REAL FIXED SCHEME COLORS
-     Replace these with the actual scheme colors after approval.
-     Siding schemes: primary + secondary + trim + fascia
-     Brick schemes: primary + trim + fascia
-     ========================================================= */
-  const SCHEME_FIXED_COLORS = {
-    /* =========================================================
-       ALL-SIDING SCHEMES A-L
-       ========================================================= */
-    "A": {primary:"SW 7006 Extra White", secondary:"SW 7006 Extra White", trim:"SW 6258 Tricorn Black", fascia:"SW 6258 Tricorn Black"},
-    "B": {primary:"SW 7008 Alabaster", secondary:"SW 7023 Requisite Gray", trim:"SW 7019 Gauntlet Gray", fascia:"SW 7019 Gauntlet Gray"},
-    "C": {primary:"SW 7037 Balanced Beige", secondary:"SW 7622 Homburg Gray", trim:"SW 7022 Natural Choice", fascia:"SW 7020 Black Fox"},
-    "D": {primary:"SW 9130 Evergreen Fog", secondary:"SW 7036 Accessible Beige", trim:"SW 7042 Shoji White", fascia:"SW 6988 Bohemian Black"},
-    "E": {primary:"SW 9554 Going Grey", secondary:"SW 7076 Cyberspace", trim:"SW Light French Gray", fascia:"SW 6005 Folkstone"},
-    "F": {primary:"SW 7622 Homburg Gray", secondary:"SW 9166 Drift of Mist", trim:"SW 7671 On the Rocks", fascia:"SW 6991 Black Magic"},
-    "G": {primary:"SW 9559 Scattered Showers", secondary:"SW 7072 Online", trim:"SW Light French Gray", fascia:"SW 6990 Caviar"},
-    "H": {primary:"SW 9141 Waterloo", secondary:"SW 9683 Lakeside", trim:"SW 9166 Drift of Mist", fascia:"SW 6989 Domino"},
-    "I": {primary:"SW 6177 Softened Green", secondary:"SW 9166 Drift of Mist", trim:"SW 7005 Pure White", fascia:"SW 6208 Pewter Green"},
-    "J": {primary:"SW 9015 They call it Mellow", secondary:"SW 9015 They call it Mellow", trim:"SW 7008 Alabaster", fascia:"SW 7008 Alabaster"},
-    "K": {primary:"SW Red Barn 7591", secondary:"SW 7036 Accessible Beige", trim:"SW 7008 Alabaster", fascia:"SW 7008 Alabaster"},
-    "L": {primary:"SW 7069 Iron Ore", secondary:"SW Light French Gray", trim:"SW 7006 Extra White", fascia:"SW 7674 Peppercorn"},
+  const SIDING_ONLY_SCHEME_DETAILS = [
+    {id:"SO01", label:"Alabaster w/ Pure White", primary:"Alabaster", secondary:"Pure White", trim:"Iron Ore", shutters:"Iron Ore"},
+    {id:"SO02", label:"Alabaster w/ Iron Ore", primary:"Alabaster", secondary:"Iron Ore", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO03", label:"Alabaster w/ Pure White", primary:"Alabaster", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO04", label:"Gauntlet Gray w/ Pure White", primary:"Gauntlet Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO05", label:"Peppercorn w/ Pure White", primary:"Peppercorn", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO06", label:"Homburg Gray w/ Pure White", primary:"Homburg Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO07", label:"Naval w/ Pure White", primary:"Naval", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO08", label:"Pewter Green w/ Pure White", primary:"Pewter Green", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO09", label:"Grays Harbor w/ Pure White", primary:"Grays Harbor", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO10", label:"Sycamore Tan w/ Pure White", primary:"Sycamore Tan", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO11", label:"Tony Taupe w/ Pure White", primary:"Tony Taupe", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO12", label:"Drift of Mist w/ Pure White", primary:"Drift of Mist", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO13", label:"Agreeable Gray w/ Pure White", primary:"Agreeable Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO14", label:"Gray Clouds w/ Pure White", primary:"Gray Clouds", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO15", label:"Dorian Gray w/ Pure White", primary:"Dorian Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO16", label:"Acier w/ Pure White", primary:"Acier", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"}
+  ];
 
-    /* =========================================================
-       BRICK SCHEMES 1-14
-       ========================================================= */
-    "1": {primary:"SW 9582 White Sand", trim:"SW 9582 White Sand", fascia:"SW 6006 Black Bean"},
-    "2": {primary:"SW 7012 Creamy", trim:"SW 9542 Natural White", fascia:"SW 2808 Rockwood Dark Brown"},
-    "3": {primary:"SW 7029 Agreeable Gray", trim:"SW 7069 Iron Ore", fascia:"SW 7069 Iron Ore"},
-    "4": {primary:"SW 7648 Big Chill", trim:"SW 9624 Winsome Grey", fascia:"SW 7020 Black Fox"},
-    "5": {primary:"SW Light French Gray", trim:"SW 9541 White Snow", fascia:"SW 7674 Peppercorn"},
-    "6": {primary:"SW 7037 Balanced Beige", trim:"SW 7037 Balanced Beige", fascia:"SW 9175 Deep Forest Brown"},
-    "7": {primary:"SW 7689 Row House Tan", trim:"SW 7637 Oyster White", fascia:"SW 7008 Alabaster"},
-    "8": {primary:"SW 9130 Evergreen Fog", trim:"SW 7010 White Duck", fascia:"SW 6188 Shade-Grown"},
-    "9": {primary:"SW 9138 Stardew", trim:"SW 7011 Natural Choice", fascia:"SW 7008 Alabaster"},
-    "10": {primary:"SW 7622 Homburg Gray", trim:"SW 7006 Extra White", fascia:"SW 7006 Extra White"},
-    "11": {primary:"SW 6243 Distance", trim:"SW 6253 Olympus White", fascia:"SW 7005 Pure White"},
-    "12": {primary:"SW 6177 Softened Green", trim:"SW 9166 Drift of Mist", fascia:"SW 6208 Pewter Green"},
-    "13": {primary:"SW 6194 Basil", trim:"SW 7757 High Reflective White", fascia:"SW 7005 Pure White"},
-    "14": {primary:"SW 6700 Daybreak", trim:"SW 7551 Greek Villa", fascia:"SW 7551 Greek Villa"}
-  };
+  const FRONT_DOOR_COLORS = [
+    "Iron Ore","Pure White","Fireweed","Pennywise","Dark Night",
+    "Ripe Olive","Peppercorn","Stained Ebony Gloss"
+  ];
+
+  const GARAGE_DOOR_COLORS = [
+    "Match Siding","Iron Ore","Black Fox","Alabaster","Pure White"
+  ];
+
+  const ALL_SIDING_SCHEMES = SIDING_ONLY_SCHEME_DETAILS.map(item => item.id);
+  const BRICK_SCHEMES = MASONRY_SIDING_OPTIONS.map(color => "M:" + color);
+
+  const SCHEME_FIXED_COLORS = {};
+
+  MASONRY_SIDING_OPTIONS.forEach(color => {
+    SCHEME_FIXED_COLORS["M:" + color] = {
+      primary:color,
+      secondary:"",
+      trim:"",
+      fascia:"",
+      shutters:""
+    };
+  });
+
+  SIDING_ONLY_SCHEME_DETAILS.forEach(item => {
+    SCHEME_FIXED_COLORS[item.id] = {
+      primary:item.primary,
+      secondary:item.secondary,
+      trim:item.trim,
+      fascia:"",
+      shutters:item.shutters,
+      label:item.label
+    };
+  });
+
+  // Masonry images can be added later using this shared path + naming format:
+  // ../Assets/masonry/grey-fog.png, ../Assets/masonry/cibolo-trail.png, etc.
+  function masonryImagePath(name){
+    const slug = String(name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+    return slug ? "../Assets/masonry/" + slug + ".png" : "";
+  }
 
   function getExteriorType(){
     const checked = document.querySelector('input[name="v2ExteriorType"]:checked');
@@ -2840,25 +2886,17 @@ const fields = {
 
   function exteriorTypeFromElevation(elevation){
 
-    const value =
-    String(elevation || "")
-    .trim()
-    .toUpperCase();
+    const value = String(elevation || "").trim().toUpperCase();
 
-    if(value === "X"){
+    if(value === "R"){
       return "all-siding";
     }
 
-    if(
-      value === "B" ||
-      value === "S" ||
-      value === "V"
-    ){
+    if(value === "A" || value === "B" || value === "C"){
       return "brick";
     }
 
     return "";
-
   }
 
 
@@ -2883,11 +2921,11 @@ const fields = {
 
     if(type === "brick"){
       display.textContent =
-      "With Brick";
+      "With Masonry";
     }
     else if(type === "all-siding"){
       display.textContent =
-      "All Siding / No Brick";
+      "Siding Only";
     }
     else{
       display.textContent =
@@ -2902,6 +2940,7 @@ const fields = {
       $("v2Door").value = "";
       $("v2Garage").value = "";
       $("v2Shutters").value = "";
+      $("v2MasonryTrim").value = "";
 
       if(type !== "brick"){
         $("v2Brick").value = "";
@@ -2950,33 +2989,54 @@ const fields = {
     const type = getExteriorType();
     $("v2BrickWrap").style.display = type === "brick" ? "block" : "none";
     $("v2Brick").disabled = type !== "brick";
+    $("v2MasonryTrimWrap").style.display = type === "brick" ? "block" : "none";
+    $("v2MasonryTrim").disabled = type !== "brick";
+
+    const schemeLabel = $("v2SchemeLabel");
+    if(schemeLabel){
+      schemeLabel.textContent = type === "all-siding" ? "Siding Scheme *" : "Siding *";
+    }
   }
 
   function populateSchemeOptions(selectedValue=""){
     const type = getExteriorType();
-    const values = type === "all-siding"
-      ? ALL_SIDING_SCHEMES
-      : type === "brick"
-        ? BRICK_SCHEMES
-        : [];
-
     const scheme = $("v2Scheme");
     scheme.innerHTML = '<option value="">' +
-      (type ? "Select Scheme" : "Choose Exterior Type First") +
+      (type === "brick" ? "Select Siding" : type === "all-siding" ? "Select Siding Scheme" : "Choose Elevation First") +
       "</option>";
 
-    values.forEach(value => {
-      const opt = document.createElement("option");
-      opt.value = value;
-      opt.textContent = "Scheme " + value;
-      scheme.appendChild(opt);
-    });
+    if(type === "brick"){
+      MASONRY_SIDING_OPTIONS.forEach(color => {
+        const opt = document.createElement("option");
+        opt.value = "M:" + color;
+        opt.textContent = color;
+        scheme.appendChild(opt);
+      });
+    }
+    else if(type === "all-siding"){
+      SIDING_ONLY_SCHEME_DETAILS.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.id;
+        opt.textContent = item.label + " · Trim " + item.trim + " · Shutters " + item.shutters;
+        scheme.appendChild(opt);
+      });
+    }
 
     scheme.disabled = !type;
 
-    if(selectedValue && values.includes(String(selectedValue))){
+    if(selectedValue && Array.from(scheme.options).some(o => o.value === String(selectedValue))){
       scheme.value = String(selectedValue);
     }
+
+    populateMasonryTrimOptions();
+  }
+
+  function populateMasonryTrimOptions(selectedValue=""){
+    const type = getExteriorType();
+    const trim = $("v2MasonryTrim");
+    fillColorSelect(trim, type === "brick" ? MASONRY_TRIM_OPTIONS : [], selectedValue,
+      type === "brick" ? "Select Trim" : "Not Used");
+    trim.disabled = type !== "brick";
   }
 
   function uniqueColors(values){
@@ -3000,10 +3060,19 @@ const fields = {
     box.style.display = "block";
     $("v2PrimaryColor").textContent = colors.primary || "—";
     $("v2SecondaryColor").textContent = colors.secondary || "—";
-    $("v2TrimColor").textContent = colors.trim || "—";
-    $("v2FasciaColor").textContent = colors.fascia || "—";
+    $("v2TrimColor").textContent = type === "brick"
+      ? ($("v2MasonryTrim").value || "—")
+      : (colors.trim || "—");
+    $("v2FasciaColor").textContent = "—";
     $("v2SecondaryColorRow").style.display =
-      type === "all-siding" ? "grid" : "none";
+      type === "all-siding" && colors.secondary ? "grid" : "none";
+
+    const shutterRow = $("v2FixedShutterColorRow");
+    const shutterValue = $("v2FixedShutterColor");
+    if(shutterRow && shutterValue){
+      shutterRow.style.display = type === "all-siding" ? "grid" : "none";
+      shutterValue.textContent = colors.shutters || "—";
+    }
   }
 
   function fillColorSelect(select, values, selectedValue, placeholder){
@@ -3029,84 +3098,50 @@ const fields = {
   }
 
   function populateDoorOptions(selectedValue=""){
-    const schemeValue = $("v2Scheme").value;
-    const colors = DOOR_COLORS_BY_SCHEME[schemeValue] || [];
+    const type = getExteriorType();
     const door = $("v2Door");
 
     fillColorSelect(
       door,
-      colors,
+      type ? FRONT_DOOR_COLORS : [],
       selectedValue,
-      schemeValue ? "Select Front Door Color" : "Choose Scheme First"
+      type ? "Select Front Door Color" : "Choose Elevation First"
     );
 
-    door.disabled = !schemeValue;
+    door.disabled = !type;
   }
 
   function populateGarageOptions(selectedValue=""){
-    const fixed = fixedColorsForCurrentScheme();
+    const type = getExteriorType();
     const garage = $("v2Garage");
-
-    if(!$("v2Door").value || !fixed){
-      fillColorSelect(
-        garage,
-        [],
-        "",
-        $("v2Scheme").value
-          ? "Choose Entry Door First"
-          : "Choose Scheme First"
-      );
-      garage.disabled = true;
-      return;
-    }
-
-    const colors = uniqueColors([
-      fixed.fascia,
-      fixed.trim,
-      fixed.primary
-    ]);
 
     fillColorSelect(
       garage,
-      colors,
+      type ? GARAGE_DOOR_COLORS : [],
       selectedValue,
-      "Select Garage Door Color"
+      type ? "Select Garage Door Color" : "Choose Elevation First"
     );
 
-    garage.disabled = false;
+    garage.disabled = !type;
   }
 
   function populateShutterOptions(selectedValue=""){
-    const fixed = fixedColorsForCurrentScheme();
+    const type = getExteriorType();
+    const fixed = fixedColorsForCurrentScheme() || {};
     const shutters = $("v2Shutters");
-
-    if(!$("v2Garage").value || !$("v2Door").value || !fixed){
-      fillColorSelect(
-        shutters,
-        [],
-        "",
-        $("v2Garage").value
-          ? "Select Shutter Color"
-          : "Choose Garage Door First"
-      );
-      shutters.disabled = true;
-      return;
-    }
-
-    const colors = uniqueColors([
-      $("v2Door").value,
-      fixed.fascia,
-      $("v2Garage").value
-    ]);
+    const value = type === "all-siding" ? (fixed.shutters || "") : "";
 
     fillColorSelect(
       shutters,
-      colors,
-      selectedValue,
-      "Select Shutter Color"
+      value ? [value] : [],
+      selectedValue || value,
+      type === "all-siding" ? "Set by Siding Scheme" : "Not Used"
     );
 
-    shutters.disabled = false;
+    shutters.disabled = true;
+    shutters.style.display = "none";
+    const label = $("v2ShuttersLabel");
+    if(label) label.style.display = "none";
   }
 
 
@@ -3687,8 +3722,13 @@ const fields = {
       out.exteriorType === "all-siding"
       ? (fixed.secondary || "")
       : "";
-    out.trimColor = fixed.trim || "";
-    out.fasciaColor = fixed.fascia || "";
+    out.trimColor = out.exteriorType === "brick"
+      ? (out.masonryTrim || "")
+      : (fixed.trim || "");
+    out.fasciaColor = "";
+    out.shutters = out.exteriorType === "all-siding"
+      ? (fixed.shutters || out.shutters || "")
+      : "";
 
     return out;
 
@@ -3721,9 +3761,9 @@ const fields = {
 
     exteriorDisplay.textContent =
     type === "brick"
-      ? "With Brick"
+      ? "With Masonry"
       : type === "all-siding"
-        ? "All Siding / No Brick"
+        ? "Siding Only"
         : "Choose Elevation First";
 
     $("v2Address").value = d.address || "";
@@ -3739,6 +3779,7 @@ const fields = {
     }
 
     populateSchemeOptions(d.scheme || "");
+    populateMasonryTrimOptions(d.masonryTrim || d.trimColor || "");
     updateSchemeColorSummary();
     populateDoorOptions(d.door || "");
     populateGarageOptions(d.garage || "");
@@ -3919,7 +3960,11 @@ const fields = {
     const fixedExteriorColors =
       SCHEME_FIXED_COLORS[savedExteriorData.scheme] || {};
 
-    // Show the friendly brick name instead of only "Brick 1", etc.
+    const savedExteriorType =
+      savedExteriorData.exteriorType ||
+      exteriorTypeFromElevation(savedExteriorData.elevation);
+
+    // Show the friendly masonry name.
     const brickOption =
       Array.from($("v2Brick").options)
       .find(option => option.value === savedExteriorData.brick);
@@ -3929,9 +3974,12 @@ const fields = {
         ? brickOption.textContent
         : (savedExteriorData.brick || "—");
 
+    const savedSchemeDetails = SCHEME_FIXED_COLORS[savedExteriorData.scheme] || {};
     $("v2ExteriorSummaryScheme").textContent =
       savedExteriorData.scheme
-        ? "Scheme " + savedExteriorData.scheme
+        ? (savedExteriorType === "brick"
+            ? savedExteriorData.scheme.replace(/^M:/, "")
+            : (savedSchemeDetails.label || savedExteriorData.scheme))
         : "—";
 
     $("v2ExteriorSummaryPrimary").textContent =
@@ -3941,7 +3989,9 @@ const fields = {
       fixedExteriorColors.secondary || "—";
 
     $("v2ExteriorSummaryTrim").textContent =
-      fixedExteriorColors.trim || "—";
+      (savedExteriorType === "brick"
+        ? (savedExteriorData.masonryTrim || savedExteriorData.trimColor || "—")
+        : (fixedExteriorColors.trim || "—"));
 
     $("v2ExteriorSummaryFascia").textContent =
       fixedExteriorColors.fascia || "—";
@@ -3954,10 +4004,6 @@ const fields = {
 
     $("v2ExteriorSummaryShutters").textContent =
       savedExteriorData.shutters || "—";
-
-    const savedExteriorType =
-      savedExteriorData.exteriorType ||
-      exteriorTypeFromElevation(savedExteriorData.elevation);
 
     $("v2ExteriorSummaryBrickItem").style.display =
       savedExteriorType === "brick"
@@ -3980,17 +4026,19 @@ const fields = {
       !stage2Enabled ||
       !getExteriorType();
 
+    $("v2MasonryTrim").disabled =
+      !stage2Enabled ||
+      getExteriorType() !== "brick";
+
     $("v2Door").disabled =
       !stage2Enabled ||
-      !$("v2Scheme").value;
+      !getExteriorType();
 
     $("v2Garage").disabled =
       !stage2Enabled ||
-      !$("v2Door").value;
+      !getExteriorType();
 
-    $("v2Shutters").disabled =
-      !stage2Enabled ||
-      !$("v2Garage").value;
+    $("v2Shutters").disabled = true;
 
     $("v2Save").disabled =
       !stage2Enabled;
@@ -4960,9 +5008,9 @@ function labelHTML(id, d) {
            STONEY CHASE RESTRICTION RULES
            1. Same PLAN + ELEVATION combination is not allowed.
               The same plan IS allowed when the elevation is different.
-           2. Same BRICK is not allowed only when BOTH homes are brick.
-           3. Same PAINT SCHEME is not allowed only when BOTH homes are
-              all-siding homes.
+           2. Same MASONRY is not allowed only when BOTH homes use masonry.
+           3. Same SIDING-ONLY PAINT SCHEME is not allowed only when BOTH homes are
+              siding-only homes.
            Door, garage and shutter colors do NOT create conflicts here.
            ========================================================= */
 
@@ -4997,7 +5045,7 @@ function labelHTML(id, d) {
           found.push({
             id:otherId,
             key:"brick",
-            label:"Brick",
+            label:"Masonry",
             value:d.brick
           });
         }
@@ -5031,6 +5079,7 @@ function labelHTML(id, d) {
       "v2Plan",
       "v2Elevation",
       "v2Brick",
+      "v2MasonryTrim",
       "v2Scheme",
       "v2Door",
       "v2Garage",
@@ -5632,22 +5681,15 @@ function labelHTML(id, d) {
 
     const missing = [];
 
-    [
-      ["scheme","Scheme"],
-      ["door","Front Door Color"],
-      ["garage","Garage Door Color"],
-      ["shutters","Shutter Color"]
-    ].forEach(([key,label]) => {
-      if(!String(form[key] || "").trim()){
-        missing.push(label);
-      }
-    });
+    if(!String(form.scheme || "").trim()){
+      missing.push(form.exteriorType === "brick" ? "Siding" : "Siding Scheme");
+    }
+    if(!String(form.door || "").trim()) missing.push("Front Door Color");
+    if(!String(form.garage || "").trim()) missing.push("Garage Door Color");
 
-    if(
-      form.exteriorType === "brick" &&
-      !String(form.brick || "").trim()
-    ){
-      missing.push("Brick");
+    if(form.exteriorType === "brick"){
+      if(!String(form.brick || "").trim()) missing.push("Masonry");
+      if(!String(form.masonryTrim || "").trim()) missing.push("Trim");
     }
 
     return missing;
@@ -5900,8 +5942,6 @@ function labelHTML(id, d) {
     () => {
 
       updateSchemeColorSummary();
-      populateDoorOptions();
-      populateGarageOptions();
       populateShutterOptions();
 
       if(
@@ -5915,13 +5955,23 @@ function labelHTML(id, d) {
     }
   );
 
+  $("v2MasonryTrim")
+  .addEventListener(
+    "change",
+    () => {
+      updateSchemeColorSummary();
+      if(selected && !formIsLocked()){
+        previewFromForm();
+        checkConflicts(true);
+      }
+    }
+  );
+
+
   $("v2Door")
   .addEventListener(
     "change",
     () => {
-      populateGarageOptions();
-      populateShutterOptions();
-
       if(selected && !formIsLocked()){
         previewFromForm();
         checkConflicts(true);
@@ -5933,8 +5983,6 @@ function labelHTML(id, d) {
   .addEventListener(
     "change",
     () => {
-      populateShutterOptions();
-
       if(selected && !formIsLocked()){
         previewFromForm();
         checkConflicts(true);
@@ -6999,7 +7047,7 @@ function labelHTML(id, d) {
       confirm(
         "WARNING: This homesite already has finalized selections saved.\n\n"
         +
-        "Clearing this home will permanently remove both Stage 1 and Stage 2 information, including Address, Plan, Elevation, Brick, Scheme, Entry Door, Garage, and Shutters. The lot will return to the unsaved color.\n\n"
+        "Clearing this home will permanently remove both Stage 1 and Stage 2 information, including Address, Plan, Elevation, Masonry, Siding selections, Entry Door, Garage, and Shutters. The lot will return to the unsaved color.\n\n"
         +
         "This should only be used when the home is no longer moving forward, such as after a buyer cancellation.\n\n"
         +
@@ -7373,8 +7421,13 @@ function labelHTML(id, d) {
     $("v2TopPlanElevation").textContent =
       [d.plan, d.elevation].filter(Boolean).join(" / ") || "—";
 
+    const topSchemeDetails = SCHEME_FIXED_COLORS[d.scheme] || {};
     $("v2TopScheme").textContent =
-      d.scheme ? "Scheme " + d.scheme : "—";
+      d.scheme
+        ? (exteriorTypeFromData(d) === "brick"
+            ? d.scheme.replace(/^M:/, "") + (d.masonryTrim ? " / " + d.masonryTrim : "")
+            : (topSchemeDetails.label || d.scheme))
+        : "—";
 
     const status = $("v2TopStatus");
     const dot = $("v2TopStatusDot");
@@ -7481,7 +7534,7 @@ function labelHTML(id, d) {
     }
 
     if(!d.scheme){
-      alert("Choose a scheme for this homesite before generating the PDF.");
+      alert("Choose the siding selection for this homesite before generating the PDF.");
       return;
     }
 
@@ -7491,7 +7544,7 @@ function labelHTML(id, d) {
     const missing = [];
     if(!d.door) missing.push("Entry Door");
     if(!d.garage) missing.push("Garage Door");
-    if(!d.shutters) missing.push("Shutters");
+    if(type === "all-siding" && !d.shutters) missing.push("Shutters");
     if(missing.length){
       alert("Choose the following before generating the PDF: " + missing.join(", ") + ".");
       return;
@@ -7500,13 +7553,19 @@ function labelHTML(id, d) {
     const cards = [];
     cards.push(pdfColorCard("Primary Siding", fixed.primary || d.primaryColor || ""));
 
-    if(type === "all-siding"){
+    if(type === "all-siding" && (fixed.secondary || d.secondaryColor)){
       cards.push(pdfColorCard("Secondary Siding", fixed.secondary || d.secondaryColor || ""));
     }
 
-    cards.push(pdfColorCard("Fascia", fixed.fascia || d.fasciaColor || ""));
-    cards.push(pdfColorCard("Trim / Soffits / Columns", fixed.trim || d.trimColor || ""));
-    cards.push(pdfColorCard("Shutters", d.shutters || ""));
+    cards.push(pdfColorCard(
+      "Trim / Soffits / Columns",
+      type === "brick" ? (d.masonryTrim || d.trimColor || "") : (fixed.trim || d.trimColor || "")
+    ));
+
+    if(type === "all-siding"){
+      cards.push(pdfColorCard("Shutters", fixed.shutters || d.shutters || ""));
+    }
+
     cards.push(pdfColorCard("Garage Door", d.garage || ""));
     cards.push(pdfColorCard("Entry Door", d.door || ""));
 
@@ -7531,7 +7590,7 @@ function labelHTML(id, d) {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>${esc(lotBlock)} - Scheme ${esc(d.scheme || "")}</title>
+<title>${esc(lotBlock)} - Exterior Color Selections</title>
 <style>
   @page{size:letter portrait;margin:.32in}
   *{box-sizing:border-box}
@@ -7755,7 +7814,7 @@ function labelHTML(id, d) {
 
   ${brickName ? `
     <div class="pdf-brick">
-      <b>Brick / Stone</b>${esc(brickName)}
+      <b>Masonry</b>${esc(brickName)}
     </div>` : ""}
 
   <div class="pdf-footer">
