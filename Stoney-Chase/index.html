@@ -2838,22 +2838,22 @@ const fields = {
   ];
 
   const SIDING_ONLY_SCHEME_DETAILS = [
-    {id:"SO01", label:"Alabaster w/ Pure White", primary:"Alabaster", secondary:"Pure White", trim:"Iron Ore", shutters:"Iron Ore"},
-    {id:"SO02", label:"Alabaster w/ Iron Ore", primary:"Alabaster", secondary:"Iron Ore", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO03", label:"Alabaster w/ Pure White", primary:"Alabaster", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO04", label:"Gauntlet Gray w/ Pure White", primary:"Gauntlet Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO05", label:"Peppercorn w/ Pure White", primary:"Peppercorn", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO06", label:"Homburg Gray w/ Pure White", primary:"Homburg Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO07", label:"Naval w/ Pure White", primary:"Naval", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO08", label:"Pewter Green w/ Pure White", primary:"Pewter Green", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO09", label:"Grays Harbor w/ Pure White", primary:"Grays Harbor", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO10", label:"Sycamore Tan w/ Pure White", primary:"Sycamore Tan", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO11", label:"Tony Taupe w/ Pure White", primary:"Tony Taupe", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO12", label:"Drift of Mist w/ Pure White", primary:"Drift of Mist", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO13", label:"Agreeable Gray w/ Pure White", primary:"Agreeable Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO14", label:"Gray Clouds w/ Pure White", primary:"Gray Clouds", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO15", label:"Dorian Gray w/ Pure White", primary:"Dorian Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
-    {id:"SO16", label:"Acier w/ Pure White", primary:"Acier", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"}
+    {id:"SO01", label:"Alabaster", primary:"Alabaster", secondary:"Pure White", trim:"Iron Ore", shutters:"Iron Ore"},
+    {id:"SO02", label:"Alabaster", primary:"Alabaster", secondary:"Iron Ore", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO03", label:"Alabaster", primary:"Alabaster", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO04", label:"Gauntlet Gray", primary:"Gauntlet Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO05", label:"Peppercorn", primary:"Peppercorn", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO06", label:"Homburg Gray", primary:"Homburg Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO07", label:"Naval", primary:"Naval", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO08", label:"Pewter Green", primary:"Pewter Green", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO09", label:"Grays Harbor", primary:"Grays Harbor", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO10", label:"Sycamore Tan", primary:"Sycamore Tan", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO11", label:"Tony Taupe", primary:"Tony Taupe", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO12", label:"Drift of Mist", primary:"Drift of Mist", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO13", label:"Agreeable Gray", primary:"Agreeable Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO14", label:"Gray Clouds", primary:"Gray Clouds", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO15", label:"Dorian Gray", primary:"Dorian Gray", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"},
+    {id:"SO16", label:"Acier", primary:"Acier", secondary:"Pure White", trim:"Pure White", shutters:"Pure White"}
   ];
 
   const FRONT_DOOR_COLORS = [
@@ -7880,7 +7880,10 @@ function labelHTML(id, d) {
     }
 
     const cards = [];
-    cards.push(pdfColorCard("Primary Siding", fixed.primary || d.primaryColor || ""));
+    cards.push(pdfColorCard(
+      type === "all-siding" ? "Siding" : "Primary Siding",
+      fixed.primary || d.primaryColor || ""
+    ));
 
     if(type === "all-siding" && (fixed.secondary || d.secondaryColor)){
       cards.push(pdfColorCard("Secondary Siding", fixed.secondary || d.secondaryColor || ""));
@@ -8014,7 +8017,7 @@ function labelHTML(id, d) {
   .pdf-masonry-card img{
     display:block;
     width:100%;
-    height:220px;
+    height:330px;
     object-fit:cover;
     background:#fff;
   }
@@ -8027,7 +8030,7 @@ function labelHTML(id, d) {
     text-transform:uppercase;
   }
   .pdf-masonry-fallback{
-    height:220px;
+    height:330px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -8059,11 +8062,11 @@ function labelHTML(id, d) {
   .pdf-color-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:12px;
+    gap:14px;
   }
   .pdf-color-card{
     position:relative;
-    height:122px;
+    height:178px;
     border:1px solid rgba(80,74,68,.16);
     border-radius:13px;
     overflow:hidden;
@@ -8071,10 +8074,10 @@ function labelHTML(id, d) {
   }
   .pdf-color-overlay{
     position:absolute;
-    left:8px;
-    right:8px;
-    bottom:8px;
-    padding:8px 10px 9px;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    padding:10px 12px 11px;
     border-radius:9px;
     background:rgba(255,255,255,.82);
     box-shadow:0 1px 4px rgba(0,0,0,.08);
