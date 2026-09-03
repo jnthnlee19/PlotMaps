@@ -7904,7 +7904,6 @@ function labelHTML(id, d) {
       brickName = option ? option.textContent : d.brick;
     }
 
-    const elevationImage = elevationImagePath(d.plan, d.elevation);
     const masonryImage = brickName ? masonryImagePath(brickName) : "";
 
     const lotBlock = plot.lot
@@ -8002,40 +8001,33 @@ function labelHTML(id, d) {
   }
   .pdf-info-value.large{font-size:14px}
 
-  .pdf-visuals{
-    display:grid;
-    grid-template-columns:2fr 1fr;
-    gap:12px;
+  .pdf-masonry-wrap{
     margin-bottom:18px;
   }
-  .pdf-visual-card{
+  .pdf-masonry-card{
     position:relative;
-    min-height:150px;
     border:1px solid #dfd8d0;
     border-radius:12px;
     overflow:hidden;
     background:#eee9e2;
   }
-  .pdf-visual-card img{
+  .pdf-masonry-card img{
     display:block;
     width:100%;
-    height:180px;
-    object-fit:contain;
+    height:220px;
+    object-fit:cover;
     background:#fff;
   }
-  .pdf-visual-card.masonry img{
-    object-fit:cover;
-  }
-  .pdf-visual-label{
-    padding:7px 10px;
+  .pdf-masonry-label{
+    padding:8px 11px;
     background:#eee9e2;
     font-size:8px;
     font-weight:900;
     letter-spacing:.05em;
     text-transform:uppercase;
   }
-  .pdf-visual-fallback{
-    height:180px;
+  .pdf-masonry-fallback{
+    height:220px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -8179,38 +8171,21 @@ function labelHTML(id, d) {
     </div>
   </div>
 
-  <div class="pdf-visuals">
-    <div class="pdf-visual-card">
-      ${elevationImage ? `
+  ${type === "brick" ? `
+  <div class="pdf-masonry-wrap">
+    <div class="pdf-masonry-card">
+      ${masonryImage ? `
         <img
-          src="${esc(elevationImage)}"
-          alt="${esc((d.plan || "") + " " + (d.elevation || ""))}"
+          src="${esc(masonryImage)}"
+          alt="${esc(brickName)}"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-        <div class="pdf-visual-fallback" style="display:none">
-          Elevation image not added yet<br>${esc(d.plan || "")}-${esc(d.elevation || "")}.png
+        <div class="pdf-masonry-fallback" style="display:none">
+          Masonry image not added yet
         </div>` : `
-        <div class="pdf-visual-fallback">Elevation image not available.</div>`}
-      <div class="pdf-visual-label">Plan ${esc(d.plan || "—")} · Elevation ${esc(d.elevation || "—")}</div>
+        <div class="pdf-masonry-fallback">Masonry image not available.</div>`}
+      <div class="pdf-masonry-label">${esc(brickName || "Masonry")}</div>
     </div>
-
-    ${type === "brick" ? `
-      <div class="pdf-visual-card masonry">
-        ${masonryImage ? `
-          <img
-            src="${esc(masonryImage)}"
-            alt="${esc(brickName)}"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-          <div class="pdf-visual-fallback" style="display:none">
-            Masonry image not added yet
-          </div>` : `
-          <div class="pdf-visual-fallback">Masonry image not available.</div>`}
-        <div class="pdf-visual-label">${esc(brickName || "Masonry")}</div>
-      </div>` : `
-      <div class="pdf-visual-card">
-        <div class="pdf-visual-fallback">Siding Only</div>
-        <div class="pdf-visual-label">Exterior Type</div>
-      </div>`}
-  </div>
+  </div>` : ""}
 
   <div class="pdf-section-head">
     <div class="pdf-section-title">Selected Colors</div>
