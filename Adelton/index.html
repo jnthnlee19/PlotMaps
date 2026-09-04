@@ -5374,8 +5374,75 @@ function labelHTML(id, d) {
 
 
   /* =========================================================
-     CONFLICT RULES
+     CONFLICT RULES — ADELTON
+     Compare ONLY manually restricted homesites.
+
+     PLAN / ELEVATION:
+     • Exact same Plan + Elevation conflicts.
+     • Special adjacency groups also conflict:
+       - B: 1793-B and 2382-B
+       - S: 1676-S, 1793-S, 2382-S
+       - X: 1676-X, 1793-X, 2382-X
+       - V: 1676-V, 1793-V, 2382-V
+
+     EXTERIOR:
+     • Same Scheme conflicts.
+     • Same Front Door conflicts.
+     • Same Brick conflicts when a brick selection applies.
+
+     Garage and Shutters are NOT Adelton restriction checks.
      ========================================================= */
+
+  function adeltonPlanElevationConflict(a, b){
+
+    const aPlan = norm(a && a.plan);
+    const aElevation = norm(a && a.elevation);
+    const bPlan = norm(b && b.plan);
+    const bElevation = norm(b && b.elevation);
+
+    if(
+      !aPlan ||
+      !aElevation ||
+      !bPlan ||
+      !bElevation
+    ){
+      return false;
+    }
+
+    // Normal rule: the exact same plan/elevation combination cannot repeat.
+    if(
+      aPlan === bPlan &&
+      aElevation === bElevation
+    ){
+      return true;
+    }
+
+    // The special rules only apply when both homes use the same elevation.
+    if(aElevation !== bElevation){
+      return false;
+    }
+
+    const specialGroups = {
+      B: ["1793", "2382"],
+      S: ["1676", "1793", "2382"],
+      X: ["1676", "1793", "2382"],
+      V: ["1676", "1793", "2382"]
+    };
+
+    const group = specialGroups[aElevation];
+
+    if(!group){
+      return false;
+    }
+
+    // Different plans inside the same special group conflict with each other.
+    return (
+      aPlan !== bPlan &&
+      group.includes(aPlan) &&
+      group.includes(bPlan)
+    );
+  }
+
 
   function conflictsFor(
     d
@@ -5386,58 +5453,23 @@ function labelHTML(id, d) {
     ){
 
       return [];
-
     }
-
-
-    const checks = [
-
-      [
-        "plan",
-        "House Plan"
-      ],
-
-      [
-        "elevation",
-        "Elevation"
-      ],
-
-      [
-        "scheme",
-        "Scheme"
-      ],
-
-      [
-        "door",
-        "Door Color"
-      ],
-
-      [
-        "garage",
-        "Garage Door Color"
-      ],
-
-      [
-        "shutters",
-        "Shutter Color"
-      ],
-
-      [
-        "brick",
-        "Brick"
-      ]
-
-    ];
 
 
     const found =
     [];
 
 
-    state
-    .plots[selected]
-    .restricted
-    .forEach(
+    const restrictedLots =
+      (
+        state.plots[selected] &&
+        Array.isArray(state.plots[selected].restricted)
+      )
+      ? state.plots[selected].restricted
+      : [];
+
+
+    restrictedLots.forEach(
 
       otherId => {
 
@@ -5452,59 +5484,113 @@ function labelHTML(id, d) {
         ){
 
           return;
-
         }
 
 
-        checks.forEach(
+        // PLAN / ELEVATION is one combined Adelton restriction.
+        if(
+          adeltonPlanElevationConflict(
+            d,
+            other
+          )
+        ){
 
-          ([
-            key,
-            label
-          ]) => {
+          found.push({
 
-            if(
+            id:
+            otherId,
 
-              norm(
-                d[key]
-              )
+            key:
+            "planElevation",
 
-              &&
+            label:
+            "Plan / Elevation",
 
-              norm(
-                d[key]
-              )
-              ===
-              norm(
-                other[key]
-              )
+            value:
+            [
+              d.plan,
+              d.elevation
+            ]
+            .filter(Boolean)
+            .join("-")
 
-            ){
+          });
+        }
 
-              found.push({
 
-                id:
-                otherId,
+        // Same exterior paint scheme is restricted.
+        if(
+          norm(d.scheme) &&
+          norm(d.scheme) === norm(other.scheme)
+        ){
 
-                key:
-                key,
+          found.push({
 
-                label:
-                label,
+            id:
+            otherId,
 
-                value:
-                d[key]
+            key:
+            "scheme",
 
-              });
+            label:
+            "Scheme",
 
-            }
+            value:
+            d.scheme
 
-          }
+          });
+        }
 
-        );
+
+        // Same front door is restricted.
+        if(
+          norm(d.door) &&
+          norm(d.door) === norm(other.door)
+        ){
+
+          found.push({
+
+            id:
+            otherId,
+
+            key:
+            "door",
+
+            label:
+            "Front Door",
+
+            value:
+            d.door
+
+          });
+        }
+
+
+        // Same brick is restricted when a brick selection exists for both homes.
+        if(
+          norm(d.brick) &&
+          norm(other.brick) &&
+          norm(d.brick) === norm(other.brick)
+        ){
+
+          found.push({
+
+            id:
+            otherId,
+
+            key:
+            "brick",
+
+            label:
+            "Brick",
+
+            value:
+            d.brick
+
+          });
+        }
 
       }
-
     );
 
 
@@ -5549,41 +5635,40 @@ function labelHTML(id, d) {
 
   function highlightConflictField(key){
 
-    const fieldByKey = {
-      plan:"v2Plan",
-      elevation:"v2Elevation",
-      brick:"v2Brick",
-      scheme:"v2Scheme",
-      door:"v2Door",
-      garage:"v2Garage",
-      shutters:"v2Shutters"
+    const idsByKey = {
+      planElevation:["v2Plan", "v2Elevation"],
+      plan:["v2Plan"],
+      elevation:["v2Elevation"],
+      brick:["v2Brick"],
+      scheme:["v2Scheme"],
+      door:["v2Door"]
     };
 
-    const id =
-      fieldByKey[key];
+    const fieldIds =
+      idsByKey[key] || [];
 
-    if(!id){
-      return;
-    }
+    fieldIds.forEach(id => {
 
-    const field = $(id);
+      const field = $(id);
 
-    if(field){
-      field.classList.add(
-        "v2-field-conflict"
-      );
-    }
+      if(field){
+        field.classList.add(
+          "v2-field-conflict"
+        );
+      }
 
-    const label =
-      document.querySelector(
-        'label[for="' + id + '"]'
-      );
+      const label =
+        document.querySelector(
+          'label[for="' + id + '"]'
+        );
 
-    if(label){
-      label.classList.add(
-        "v2-label-conflict"
-      );
-    }
+      if(label){
+        label.classList.add(
+          "v2-label-conflict"
+        );
+      }
+
+    });
   }
 
 
@@ -6621,8 +6706,7 @@ function labelHTML(id, d) {
     const stage1Conflicts =
       conflictsFor(stage1Candidate)
       .filter(c =>
-        c.key === "plan" ||
-        c.key === "elevation"
+        c.key === "planElevation"
       );
 
     clearFieldConflictHighlights();
@@ -6646,7 +6730,7 @@ function labelHTML(id, d) {
       statusBox.innerHTML = "<b>✕ Conflicts found</b>";
 
       alert(
-        "This home cannot be saved because Plan and/or Elevation conflicts with a restricted homesite.\n\nThe conflicting field is highlighted in red."
+        "This home cannot be saved because the Plan / Elevation combination conflicts with a restricted homesite.\n\nThe Plan and Elevation fields are highlighted in red."
       );
 
       return;
