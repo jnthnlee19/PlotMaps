@@ -3991,6 +3991,118 @@ const fields = {
   }
 
 
+  /* =========================================================
+     AUTOMATIC SHARED-DATA REFRESH
+     Checks Netlify every 5 seconds so changes made on another
+     computer appear without manually refreshing this page.
+     The open form is NOT rebuilt, so typed/unsaved work is safe.
+     ========================================================= */
+
+  let autoRefreshInFlight = false;
+
+  async function autoRefreshSharedState(){
+
+    if(LOCAL_TEST_MODE || autoRefreshInFlight){
+      return;
+    }
+
+    // Do not interrupt restriction-targeting clicks while they are happening.
+    if(restrictionMode){
+      return;
+    }
+
+    autoRefreshInFlight = true;
+
+    try{
+      const response = await fetch(
+        "/.netlify/functions/adelton-state",
+        { method:"GET", cache:"no-store" }
+      );
+
+      if(!response.ok){
+        throw new Error("Automatic shared refresh failed: " + response.status);
+      }
+
+      const result = await response.json();
+
+      if(!result || !result.hasData || !result.state){
+        return;
+      }
+
+      const incomingEtags =
+        (result.etags && typeof result.etags === "object")
+          ? result.etags
+          : {};
+
+      const changedIds = ids.filter(id =>
+        (incomingEtags[id] || null) !== (sharedEtags[id] || null)
+      );
+
+      if(!changedIds.length){
+        setSharedStatus("Shared • Live", "#15803d");
+        return;
+      }
+
+      const incoming = result.state;
+
+      if(!incoming.plots || typeof incoming.plots !== "object") incoming.plots = {};
+      if(!incoming.data || typeof incoming.data !== "object") incoming.data = {};
+      if(!incoming.meta || typeof incoming.meta !== "object") incoming.meta = {};
+
+      // Replace shared state with the newest server copy. This does not touch
+      // values currently typed into the open form because fillForm/selectPlot
+      // are intentionally not called here.
+      state = incoming;
+
+      ids.forEach(id => {
+        if(!state.plots[id]) state.plots[id] = { restricted:[] };
+        if(!Array.isArray(state.plots[id].restricted)) state.plots[id].restricted = [];
+        if(!state.meta[id]){
+          state.meta[id] = {
+            locked:false,
+            lastSavedAt:"",
+            overrideReason:"",
+            overrideAt:""
+          };
+        }
+      });
+
+      sharedEtags = {...incomingEtags};
+      lastSyncedState = cloneState(state);
+
+      // Keep the ETag from when an actively open homesite was opened.
+      // That way the existing stale-save protection still stops an overwrite
+      // if another person changed that same homesite.
+      ids.forEach(id => {
+        if(id !== selected){
+          openedEtags[id] = incomingEtags[id] || null;
+        }
+      });
+
+      localStorage.setItem(STORAGE, JSON.stringify(state));
+
+      updateLabels();
+      paint();
+      renderRestrictions();
+      renderQuickSetup();
+      updateTopSummary();
+
+      setSharedStatus("Shared • Updated", "#15803d");
+
+      setTimeout(() => {
+        setSharedStatus("Shared • Live", "#15803d");
+      }, 1200);
+    }
+    catch(error){
+      console.error(error);
+      setSharedStatus("Shared • Reconnecting…", "#ca8a04");
+    }
+    finally{
+      autoRefreshInFlight = false;
+    }
+  }
+
+
   function norm(v){
 
     return String(
@@ -5422,11 +5534,12 @@ function labelHTML(id, d) {
       return false;
     }
 
+    // norm() lowercases values, so these keys MUST be lowercase.
     const specialGroups = {
-      B: ["1793", "2382"],
-      S: ["1676", "1793", "2382"],
-      X: ["1676", "1793", "2382"],
-      V: ["1676", "1793", "2382"]
+      b: ["1793", "2382"],
+      s: ["1676", "1793", "2382"],
+      x: ["1676", "1793", "2382"],
+      v: ["1676", "1793", "2382"]
     };
 
     const group = specialGroups[aElevation];
@@ -5460,13 +5573,27 @@ function labelHTML(id, d) {
     [];
 
 
-    const restrictedLots =
+    // Treat restriction relationships as two-way for conflict checking.
+    // This catches older/shared records where A lists B but B does not list A.
+    const outgoingRestricted =
       (
         state.plots[selected] &&
         Array.isArray(state.plots[selected].restricted)
       )
       ? state.plots[selected].restricted
       : [];
+
+    const incomingRestricted = Object.keys(state.plots || {})
+      .filter(otherId =>
+        otherId !== selected &&
+        state.plots[otherId] &&
+        Array.isArray(state.plots[otherId].restricted) &&
+        state.plots[otherId].restricted.includes(selected)
+      );
+
+    const restrictedLots = [
+      ...new Set([...outgoingRestricted, ...incomingRestricted])
+    ];
 
 
     restrictedLots.forEach(
@@ -8719,6 +8846,10 @@ window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
 
   // Load the shared Netlify Blob data for everyone using this site.
   loadSharedState();
+
+  // Then quietly check for changes from other users every 5 seconds.
+  // No manual browser refresh is required.
+  setInterval(autoRefreshSharedState, 5000);
 
 
   // Start the map automatically in Fit view.
